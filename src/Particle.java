@@ -1,10 +1,10 @@
 import java.awt.*;
 
-public abstract class Particle {
+public class Particle {
 
     final int INTERACTION_RADIUS = 5;
 
-    double charge;
+    int charge;
     Point speed;
     Point position;
     int accelerationY;
@@ -13,7 +13,8 @@ public abstract class Particle {
     Image img;
     int speedFrequency;
 
-    public Particle(double charge, Image img, int frequency, int amplitude) {
+    public Particle(int x, int y, int charge, Image img, int frequency, int amplitude) {
+        this.position = new Point(x, y);
         this.charge = charge;
         this.img = img;
         this.speedFrequency = frequency;
