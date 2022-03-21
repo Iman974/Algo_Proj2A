@@ -10,12 +10,14 @@ public class Physics {
     public Physics() {
         particles = new LinkedList<Particle>();
 
-        createParticle(100, 100);
-        createParticle(140, 110);
+        createParticle(100, 300);
+//        createParticle(140, 110);
     }
 
-    private void updateScene() {
-
+    public void updateScene(int bufferWidth) {
+        for (Particle p : particles) {
+            p.move(bufferWidth);
+        }
     }
 
     // Instancie une particule dans le jeu

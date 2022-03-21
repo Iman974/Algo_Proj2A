@@ -32,7 +32,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
         this.bufferG = buffer.getGraphics();
 
         // Initialisation du timer pour les animations
-        Timer t = new Timer(1 / 30, this);
+        Timer t = new Timer(17, this);
         t.start();
 
         this.addMouseMotionListener(this);
@@ -49,10 +49,10 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
         for (Particle p : physics.particles) {
             drawParticle(p);
         }
+        repaint();
     }
 
     public void paint(Graphics g) {
-        Insets insets = this.getInsets();
         g.drawImage(buffer, origin.x, origin.y, null);
     }
 
@@ -74,6 +74,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     // Appelée à chaque frame
     public void actionPerformed(ActionEvent e) {
         updateScreen();
+        physics.updateScene(buffer.getWidth());
     }
 
     public void mouseDragged(MouseEvent e) { }
