@@ -10,8 +10,8 @@ public class Physics {
     public Physics() {
         particles = new LinkedList<Particle>();
 
-        createParticle(100, 300);
-//        createParticle(140, 110);
+        createParticle(100, 300,0.015,5);
+        createParticle(100, 300,0.019,10);
     }
 
     public void updateScene(int bufferWidth) {
@@ -21,7 +21,7 @@ public class Physics {
     }
 
     // Instancie une particule dans le jeu
-    private void createParticle(int x, int y) {
+    private void createParticle(int x, int y,double frequency, int amplitude) {
         // Créé une image vierge, simplement pour les tests
         Image blankImg = new Image() {
             public int getWidth(ImageObserver observer) {
@@ -42,7 +42,8 @@ public class Physics {
             }
         };
 
-        Particle p = new Particle(x, y, -1, blankImg, 10, 2);
+        Particle p = new Particle(x, y, -1, blankImg, frequency, amplitude);
         particles.add(p);
+        
     }
 }

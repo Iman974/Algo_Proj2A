@@ -13,9 +13,11 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     BufferedImage buffer;
     Graphics bufferG;
     Point origin;
+    static int FrameCounter;
 
     public MainWindow(String nom, int width, int height) {
         super(nom);
+        FrameCounter=1;
         setSize(width,height);
         setLocation(300,200);
 
@@ -32,7 +34,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
         this.bufferG = buffer.getGraphics();
 
         // Initialisation du timer pour les animations
-        Timer t = new Timer(17, this);
+        Timer t = new Timer(1, this);
         t.start();
 
         this.addMouseMotionListener(this);
@@ -41,6 +43,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     public static void main(String[] args) {
         MainWindow w = new MainWindow("Game", 600, 600);
         physics = new Physics();
+        
     }
 
     // Met a jour l'affichage de toutes les particules a l'ecran, en prenant en compte leurs nouvelles positions
@@ -64,10 +67,10 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
 
     private void drawParticle(Particle p) {
         bufferG.setColor(Color.magenta);
-
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        int x = p.position.x - p.img.getWidth(null) / 2;
-        int y = p.position.y - p.img.getHeight(null) / 2;
+        int x = (int)(p.position.x - p.img.getWidth(null) / 2);
+        int y = (int)(p.position.y - p.img.getHeight(null) / 2);
+        
         bufferG.fillOval(x, y, 25, 25);
     }
 
@@ -75,6 +78,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     public void actionPerformed(ActionEvent e) {
         updateScreen();
         physics.updateScene(buffer.getWidth());
+        FrameCounter=FrameCounter+1;
     }
 
     public void mouseDragged(MouseEvent e) { }
