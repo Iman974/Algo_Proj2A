@@ -10,22 +10,25 @@ public class Particle {
         ANTIMATTER
     }
 
-    final int INTERACTION_RADIUS = 5;
+    final int FORCE_RADIUS = 30;
+    final int COLLIDER_RADIUS = 13;
 
     int charge;
     Point2D.Double speed;
     Point2D.Double position;
     int accelerationY;
     boolean isVisible;
-    int amplitudeSpeed;
+    int moveAmplitude;
     Image img;
     double speedFrequency;
     boolean isFromPlayer;
+    Color color;
 
-    public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, boolean isPlayer) {
+    public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, boolean isPlayer, Color c) {
         this.position = new Point2D.Double(x, y);
         this.img = img;
         this.isFromPlayer = isPlayer;
+        this.color = c;
 
         switch (type) {
             case NEUTRON:
@@ -47,15 +50,15 @@ public class Particle {
         }
 
         this.speedFrequency = frequency;
-        this.amplitudeSpeed = amplitude;
+        this.moveAmplitude = amplitude;
 
         this.speed = new Point2D.Double(4, 0);
     }
 
     public void move(int bufferWidth) { // generate the sine move of a particle
         position.x += speed.x;
-        speed.y = amplitudeSpeed * Math.cos(2 * Math.PI * speedFrequency * MainWindow.getFrame());
-        position.y += speed.y;
+//        speed.y = amplitudeSpeed * Math.cos(2 * Math.PI * speedFrequency * MainWindow.getFrame());
+//        position.y += speed.y;
 
         if (position.x >= bufferWidth || position.x <= 0) {
             speed.x = -speed.x;

@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 public class MainWindow extends JFrame implements MouseMotionListener, ActionListener {
@@ -34,7 +35,7 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
 
         // Initialisation du timer pour les animations
         // NE PAS TOUCHER : 17 ms d'intervalle correspond à 60 IMAGES PAR SECONDES
-        Timer t = new Timer(17, this);
+        Timer t = new Timer(100, this);
         t.start();
 
         this.addMouseMotionListener(this);
@@ -45,9 +46,8 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     }
 
     public static void main(String[] args) {
-        MainWindow w = new MainWindow("Game", 600, 600);
         physics = new Physics();
-
+        MainWindow w = new MainWindow("Game", 600, 600);
     }
 
     // Met a jour l'affichage de toutes les particules a l'ecran, en prenant en compte leurs nouvelles positions
@@ -70,12 +70,19 @@ public class MainWindow extends JFrame implements MouseMotionListener, ActionLis
     }
 
     private void drawParticle(Particle p) {
-        bufferG.setColor(Color.magenta);
+        bufferG.setColor(p.color);
+        Point2D.Double imgSize = new Point2D.Double(p.img.getWidth(null), p.img.getHeight(null));
+
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        int x = (int)(p.position.x - p.img.getWidth(null) / 2.0);
-        int y = (int)(p.position.y - p.img.getHeight(null) / 2.0);
+        int x = (int)(p.position.x - imgSize.x / 2.0);
+        int y = (int)(p.position.y - imgSize.y / 2.0);
 
         bufferG.fillOval(x, y, 25, 25);
+
+        // Dessine le collider
+//        bufferG.setColor(Color.GREEN);
+//        bufferG.drawOval((int)(p.position.x - p.COLLIDER_RADIUS), (int)(p.position.y - p.COLLIDER_RADIUS),
+//                p.COLLIDER_RADIUS * 2, p.COLLIDER_RADIUS * 2);
     }
 
     // Appelée à chaque frame
