@@ -55,12 +55,12 @@ public class Particle {
         this.speed = new Point2D.Double(4, 0);
     }
 
-    public void move(int bufferWidth) { // generate the sine move of a particle
+    public void move() { // generate the sine move of a particle
         position.x += speed.x;
 //        speed.y = amplitudeSpeed * Math.cos(2 * Math.PI * speedFrequency * MainWindow.getFrame());
 //        position.y += speed.y;
 
-        if (position.x >= bufferWidth || position.x <= 0) {
+        if (position.x >= GameArea.width || position.x <= 0) {
             speed.x = -speed.x;
         }
     }

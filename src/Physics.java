@@ -20,10 +20,10 @@ public class Physics {
         createParticle(Particle.Type.NEUTRON, 450, 310, 0.01, 10, false, Color.red);
     }
 
-    public void updateScene(int bufferWidth) {
+    public void updateScene() {
         for (Particle p : allParticles) {
 
-            p.move(bufferWidth);
+            p.move();
             checkCollisions();
         }
     }
