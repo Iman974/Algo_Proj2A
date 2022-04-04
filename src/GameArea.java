@@ -20,6 +20,7 @@ public class GameArea extends JPanel {
 
         this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         this.bufferG = buffer.getGraphics();
+        setLayout(null);
     }
 
     public void paintComponent(Graphics g) {

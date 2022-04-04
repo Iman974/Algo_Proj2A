@@ -34,8 +34,8 @@ public class MainWindow extends JFrame implements ActionListener {
         this.gameArea = new GameArea(background.getWidth(), background.getHeight());
 
         particleSelector = new SelectionBar();
-//        this.gameArea.add(particleSelector);
         background.add(this.gameArea);
+        this.gameArea.add(particleSelector);
 
         // Initialisation du timer pour les animations
         // Toujours mettre à 17 ms d'intervalle (hors test) = 60 fps
