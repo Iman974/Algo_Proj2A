@@ -24,14 +24,21 @@ public class GameArea extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+//        super.paintComponent(g); // TODO: Utile à conserver ?
         g.drawImage(buffer, 0, 0, null);
+
+        // Dessine le rayon d'interaction pour chaque particule
+//        g.setColor(Color.green);
+//        final int radius = Particle.FORCE_RADIUS;
+//        for (Particle p : Physics.allParticles) {
+//            g.drawOval((int)(p.position.x - radius), (int)(p.position.y - radius), radius * 2, radius * 2);
+//        }
     }
 
     // Met a jour l'affichage de toutes les particules a l'ecran, en prenant en compte leurs nouvelles positions
     public void updateScreen() {
         clearScreen();
-        for (Particle p : physics.allParticles) {
+        for (Particle p : Physics.allParticles) {
             drawParticle(p);
         }
         repaint();
@@ -45,11 +52,11 @@ public class GameArea extends JPanel {
 
     private void drawParticle(Particle p) {
         bufferG.setColor(p.color);
-        Point2D.Double imgSize = new Point2D.Double(p.img.getWidth(null), p.img.getHeight(null));
+        Point2D.Double particleSize = new Point2D.Double(p.img.getWidth(null), p.img.getHeight(null));
 
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        int x = (int)(p.position.x - imgSize.x / 2.0);
-        int y = (int)(p.position.y - imgSize.y / 2.0);
+        int x = (int)(p.position.x - particleSize.x / 2.0);
+        int y = (int)(p.position.y - particleSize.y / 2.0);
 
         bufferG.fillOval(x, y, 25, 25);
 

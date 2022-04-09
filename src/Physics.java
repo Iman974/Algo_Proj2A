@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.LinkedList;
@@ -16,20 +17,38 @@ public class Physics {
         allParticles = new LinkedList<Particle>();
         collidableParticles = new LinkedList<Particle>();
 
-        createParticle(Particle.Type.NEUTRON, 340, 300, 0.05, 5, true, Color.magenta);
-        createParticle(Particle.Type.NEUTRON, 450, 310, 0.01, 10, false, Color.red);
+
+        createParticle(Particle.Type.PROTON, 70, 200, 0.02, 55, false, Color.magenta,
+                new Point2D.Double(2, 0));
+        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
     }
 
     public void updateScene() {
         for (Particle p : allParticles) {
+            p.resetForce();
+            for (Particle other : allParticles) {
+                if (other == p) {
+                    continue;
+                }
+                if (p.position.distanceSq(other.position) <= Particle.FORCE_RADIUS * Particle.FORCE_RADIUS) {
+                    other.applyForceTo(p);
+                }
+            }
 
             p.move();
             checkCollisions();
+            break;
         }
     }
 
-    // Instancie une particule dans le jeu
-    private void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude, boolean fromPlayer, Color c) {
+    private void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
+                                boolean fromPlayer, Color c) {
+        createParticle(type, x, y, frequency, amplitude, fromPlayer, c, new Point2D.Double());
+    }
+
+        // Instancie une particule dans le jeu
+    private void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
+                                boolean fromPlayer, Color c, Point2D.Double startSpeed) {
         // Créé une image vierge, simplement pour les tests
         Image blankImg = new Image() {
             public int getWidth(ImageObserver observer) {
@@ -53,7 +72,7 @@ public class Physics {
             }
         };
 
-        Particle p = new Particle(type, x, y, blankImg, frequency, amplitude, fromPlayer, c);
+        Particle p = new Particle(type, x, y, blankImg, frequency, amplitude, fromPlayer, c, startSpeed);
         allParticles.add(p);
         if (fromPlayer) {
             collidableParticles.add(p);
