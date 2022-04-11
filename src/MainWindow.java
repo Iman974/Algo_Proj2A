@@ -33,9 +33,9 @@ public class MainWindow extends JFrame implements ActionListener {
 
         this.gameArea = new GameArea(background.getWidth(), background.getHeight());
 
-        particleSelector = new SelectionBar();
+        //particleSelector = new SelectionBar();
         background.add(this.gameArea);
-//        this.gameArea.add(particleSelector);
+		//this.gameArea.add(particleSelector);
     }
 
     public static int getFrame() {
