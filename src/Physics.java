@@ -20,16 +20,10 @@ public class Physics {
 
         createParticle(Particle.Type.PROTON, 70, 200, 0.02, 55, false, Color.magenta,
                 new Point2D.Double(2, 0));
-        createParticle(Particle.Type.ELECTRON, 10, 13, 0.01, 20, false, Color.red, 
-				new Point2D.Double(2, 0));
-		createParticle(Particle.Type.ELECTRON, 100, 100, 0.01, 10, false, Color.yellow, 
-				new Point2D.Double(2, 0));
-		createParticle(Particle.Type.ELECTRON, 300, 120, 0.07, 6, false, Color.green, 
-				new Point2D.Double(2, 0));
-		createParticle(Particle.Type.ELECTRON, 400, 200, 0.08, 15, false, Color.blue, 
-				new Point2D.Double(2, 0));
-		createParticle(Particle.Type.ELECTRON, 500, 120, 0.08, 12, false, Color.red, 
-				new Point2D.Double(2, 0));
+        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
+        spawnParticle();
+        spawnParticle();
+        spawnParticle();
     }
 
     public void updateScene() {
@@ -101,5 +95,21 @@ public class Physics {
                 }
             }
         }
+    }
+
+    public void spawnParticle(){
+            int borderRandom = (int)(Math.random()*3);
+            if (borderRandom==0){
+                createParticle(Particle.Type.PROTON, 0, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
+                new Point2D.Double(2, Math.random()*5));
+            }
+            if (borderRandom==1){
+                createParticle(Particle.Type.PROTON, 700, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
+                new Point2D.Double(-Math.random()*5, Math.random()*5));
+            }
+            if (borderRandom==2){
+                createParticle(Particle.Type.PROTON, (int)(Math.random()*700), 0, 0.02, 55, false, Color.magenta,
+                new Point2D.Double(Math.random()*5, -Math.random()*5));
+            }
     }
 }
