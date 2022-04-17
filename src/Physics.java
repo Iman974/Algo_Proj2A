@@ -101,15 +101,15 @@ public class Physics {
             int borderRandom = (int)(Math.random()*3);
             if (borderRandom==0){
                 createParticle(Particle.Type.PROTON, 0, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
-                new Point2D.Double(2, Math.random()*5));
+                new Point2D.Double(Math.random()*5, 5-Math.random()*10));
             }
             if (borderRandom==1){
                 createParticle(Particle.Type.PROTON, 700, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
-                new Point2D.Double(-Math.random()*5, Math.random()*5));
+                new Point2D.Double(-Math.random()*5, 5-Math.random()*10));
             }
             if (borderRandom==2){
                 createParticle(Particle.Type.PROTON, (int)(Math.random()*700), 0, 0.02, 55, false, Color.magenta,
-                new Point2D.Double(Math.random()*5, -Math.random()*5));
+                new Point2D.Double(2-Math.random()*4, -Math.random()*5));
             }
     }
 }

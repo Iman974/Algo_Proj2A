@@ -24,7 +24,7 @@ public class GameArea extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
-//        super.paintComponent(g); // TODO: Utile à conserver ?
+        // super.paintComponent(g); // TODO: Utile à conserver ?
         g.drawImage(buffer, 0, 0, null);
 
         // Dessine le rayon d'interaction pour chaque particule
