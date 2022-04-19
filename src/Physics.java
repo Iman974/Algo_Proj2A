@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Physics {
@@ -9,7 +10,7 @@ public class Physics {
     public static LinkedList<Particle> allParticles; // Contient toutes les particules visibles (pour rendering)
     public static LinkedList<Particle> antimatterParticles;
 
-    // Contient toutes les particules qui peuvent causer une collision (celles du joueur uniquement)
+    // Contient toutes les particules qui peuvent causer une collision avec toutes les autres (celles du joueur uniquement)
     public static LinkedList<Particle> collidableParticles;
 
 
@@ -20,13 +21,24 @@ public class Physics {
 
         createParticle(Particle.Type.PROTON, 70, 200, 0.02, 55, false, Color.magenta,
                 new Point2D.Double(2, 0));
-        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
+//        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
         spawnParticle();
         spawnParticle();
         spawnParticle();
     }
 
     public void updateScene() {
+        // Détruit toute particule qui sort de l'écran
+        for (Iterator<Particle> iterator = allParticles.iterator(); iterator.hasNext();) {
+            Particle p = iterator.next();
+            final int LIMIT = 50;
+            if (p.position.x < -LIMIT || p.position.x > GameArea.width + LIMIT ||
+                    p.position.y < -LIMIT || p.position.y > GameArea.height + LIMIT) {
+                destroyParticle(p);
+                iterator.remove();
+            }
+        }
+
         for (Particle p : allParticles) {
             p.resetForce();
             for (Particle other : allParticles) {
@@ -43,13 +55,17 @@ public class Physics {
         }
     }
 
-    private void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
-                                boolean fromPlayer, Color c) {
-        createParticle(type, x, y, frequency, amplitude, fromPlayer, c, new Point2D.Double());
+    public void destroyParticle(Particle p) {
+        if (p.type == Particle.Type.ANTIMATTER) {
+            antimatterParticles.remove(p);
+        }
+        if (p.isFromPlayer || p.type == Particle.Type.ANTIMATTER) {
+            collidableParticles.remove(p);
+        }
     }
 
-        // Instancie une particule dans le jeu
-    private void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
+    // Instancie une particule dans le jeu
+    public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
                                 boolean fromPlayer, Color c, Point2D.Double startSpeed) {
         // Créé une image vierge, simplement pour les tests
         Image blankImg = new Image() {
@@ -75,6 +91,7 @@ public class Physics {
         };
 
         Particle p = new Particle(type, x, y, blankImg, frequency, amplitude, fromPlayer, c, startSpeed);
+
         allParticles.add(p);
         if (fromPlayer) {
             collidableParticles.add(p);
@@ -97,19 +114,19 @@ public class Physics {
         }
     }
 
-    public void spawnParticle(){
-            int borderRandom = (int)(Math.random()*3);
-            if (borderRandom==0){
-                createParticle(Particle.Type.PROTON, 0, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
-                new Point2D.Double(Math.random()*5, 5-Math.random()*10));
-            }
-            if (borderRandom==1){
-                createParticle(Particle.Type.PROTON, 700, (int)(Math.random()*700), 0.02, 55, false, Color.magenta,
-                new Point2D.Double(-Math.random()*5, 5-Math.random()*10));
-            }
-            if (borderRandom==2){
-                createParticle(Particle.Type.PROTON, (int)(Math.random()*700), 0, 0.02, 55, false, Color.magenta,
-                new Point2D.Double(2-Math.random()*4, -Math.random()*5));
-            }
+    public void spawnParticle() {
+        int borderRandom = (int) (Math.random() * 3);
+        if (borderRandom == 0) {
+            createParticle(Particle.Type.PROTON, 0, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
+                    new Point2D.Double(2, 5 - Math.random() * 10));
+        }
+        if (borderRandom == 1) {
+            createParticle(Particle.Type.PROTON, 700, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
+                    new Point2D.Double(-Math.random() * 5, 5 - Math.random() * 10));
+        }
+        if (borderRandom == 2) {
+            createParticle(Particle.Type.PROTON, (int) (Math.random() * 700), 0, 0.02, 55, false, Color.magenta,
+                    new Point2D.Double(2 - Math.random() * 4, -Math.random() * 5));
+        }
     }
 }
