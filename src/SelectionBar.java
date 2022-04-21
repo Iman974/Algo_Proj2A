@@ -1,11 +1,13 @@
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class SelectionBar extends JPanel {
+public class SelectionBar extends JPanel implements ActionListener {
 
     JButton protonBtn;
     JButton electronBtn;
     JButton neutronBtn;
+    Particle.Type selec;
 
     public SelectionBar() {
         final int BTN_SIZE = 100;
@@ -19,20 +21,34 @@ public class SelectionBar extends JPanel {
                 BTN_SIZE);
         add(neutronBtn);
 
-        Icon iconElectron = new ImageIcon("../resources/electronImage.jpg");
-        electronBtn = new JButton(iconElectron);
-        electronBtn.setBounds(150, 0, BTN_SIZE,
-                BTN_SIZE);
-        add(electronBtn);
 
         Icon iconProton = new ImageIcon("../resources/protonImage.jpg");
         protonBtn = new JButton(iconProton);
-        protonBtn.setBounds(300, 0, BTN_SIZE,
+        protonBtn.setBounds(150, 0, BTN_SIZE,
                 BTN_SIZE);
         add(protonBtn);
 
-        
+        Icon iconElectron = new ImageIcon("../resources/electronImage.jpg");
+        electronBtn = new JButton(iconElectron);
+        electronBtn.setBounds(300, 0, BTN_SIZE,
+                BTN_SIZE);
+        add(electronBtn);
 
+        neutronBtn.addActionListener (this);
+        electronBtn.addActionListener (this);
+        protonBtn.addActionListener (this);
 
     }
+
+    public void actionPerformed(ActionEvent e){
+        if (e.getSource() == neutronBtn){
+                selec = Particle.Type.NEUTRON;
+        }else if (e.getSource() == protonBtn){
+                selec = Particle.Type.PROTON;
+        }else if (e.getSource() == electronBtn){
+                selec = Particle.Type.ELECTRON;
+        }
+        System.out.println(selec);
+    }
+
 }

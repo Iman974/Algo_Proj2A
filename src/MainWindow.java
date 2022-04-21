@@ -2,10 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 public class MainWindow extends JFrame implements ActionListener {
 
@@ -33,9 +29,9 @@ public class MainWindow extends JFrame implements ActionListener {
 
         this.gameArea = new GameArea(background.getWidth(), background.getHeight());
 
-        //particleSelector = new SelectionBar();
+        particleSelector = new SelectionBar();
         background.add(this.gameArea);
-		//this.gameArea.add(particleSelector);
+        this.gameArea.add(particleSelector);
     }
 
     public static int getFrame() {

@@ -17,13 +17,12 @@ public class Particle {
     Point2D.Double totalForce;
     Point2D.Double speed;
     Point2D.Double position;
-    Point2D.Double waveAcceleration;
-    boolean isVisible;
     int moveAmplitude;
     Image img;
     double speedFrequency;
     boolean isFromPlayer;
     Color color;
+    Type type;
 
     public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, boolean isPlayer, Color c,
                     Point2D.Double startSpeed) {
@@ -36,6 +35,7 @@ public class Particle {
         this.moveAmplitude = amplitude;
         this.speed = new Point2D.Double(startSpeed.x, startSpeed.y);
 
+        this.type = type;
         // On définit les propriétés de la particule selon son type
         switch (type) {
             case NEUTRON:
@@ -58,7 +58,6 @@ public class Particle {
     }
 
     public void move() {
-        System.out.println(position);
         // On normalise la vitesse pour avoir la direction de déplacement
         double speedLength = speed.distance(0, 0);
         Point2D.Double direction = new Point2D.Double(0, 0);
@@ -78,12 +77,12 @@ public class Particle {
         // mouvement qui est longitudinal (vers l'avant)
         position.x += (waveSpeedEval * -direction.y) + speed.x;
         position.y += (waveSpeedEval * direction.x) + speed.y;
-        if( position.x>= 650|| position.x<=10){
-			speed.x=-speed.x;
-		}
-		if( position.y<=10||position.y>=650){
-			speed.y=-speed.y;
-		}
+//        if( position.x>= 650|| position.x<=10){
+//			speed.x=-speed.x;
+//		}
+//		if( position.y<=10||position.y>=650){
+//			speed.y=-speed.y;
+//		}
     }
 
     public void resetForce() {
