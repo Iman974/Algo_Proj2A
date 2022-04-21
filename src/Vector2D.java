@@ -1,45 +1,51 @@
 public class Vector2D {
+
     double x;
     double y;
-    public Vector2D(double x1, double y1){
-        this.x=x1;
-        this.y=y1;
+
+    public Vector2D(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 
-    public double getLength(){
-        return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+    public double getSqrLength() {
+        return x * x + y * y;
     }
 
-    public void normalize(){
-        double l=getLength();
-        this.x=this.x/l;
-        this.y=this.y/l;
+    public double getLength() {
+        return Math.sqrt(x * x + y * y);
     }
 
-    public void scaleBy(double a){
-        this.x=this.x*a;
-        this.y=this.y*a;
+    public void normalize() {
+        double length = getLength();
+        x /= length;
+        y /= length;
     }
 
-    public void rotateAround(Vector2D v, double a){
+    public void scaleBy(double scalar) {
+        x *= scalar;
+        y *= scalar;
+    }
+
+    public void rotateAround(Vector2D v, double angle) {
         //à compléter
     }
 
-    public static Vector2D getNormalized(Vector2D v){
-        double l=v.getLength();
-        return new Vector2D(v.x/l , v.y/l);
+    public static Vector2D getNormalized(Vector2D v) {
+        double length = v.getLength();
+        return new Vector2D(v.x / length, v.y / length);
     }
 
-    public static Vector2D getScaled(Vector2D v, double a){
-        return new Vector2D(v.x*a , v.y*a);
+    public static Vector2D getScaled(Vector2D v, double scalar) {
+        return new Vector2D(v.x * scalar, v.y * scalar);
     }
 
-    public static Vector2D add(Vector2D v1, Vector2D v2){
-        return new Vector2D(v1.x+v2.x , v1.y + v2.y);
+    public static Vector2D add(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x + b.x, a.y + b.y);
     }
 
-    public static Vector2D substract(Vector2D v1, Vector2D v2){
-        return new Vector2D(v1.x - v2.x , v1.y - v2.y);
+    public static Vector2D subtract(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x - b.x, a.y - b.y);
     }
 
 }
