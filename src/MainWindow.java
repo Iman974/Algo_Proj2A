@@ -50,6 +50,7 @@ public class MainWindow extends JFrame implements ActionListener {
         // Toujours mettre à 17 ms d'intervalle (hors test) = 60 fps
         Timer t = new Timer(17, w);
         t.start();
+        System.out.println(System.getProperty("user.dir"));
     }
 
     // Appelée à chaque frame
