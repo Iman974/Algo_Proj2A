@@ -7,7 +7,7 @@ public class SelectionBar extends JPanel implements ActionListener {
     JButton protonBtn;
     JButton electronBtn;
     JButton neutronBtn;
-    Particle.Type selec;
+    Particle.Type selectedType;
 
     public SelectionBar() {
         final int BTN_SIZE = 100;
@@ -16,20 +16,20 @@ public class SelectionBar extends JPanel implements ActionListener {
         setBounds(0, 0, 400, 100);
         
         Icon iconNeutron = new ImageIcon("../resources/neutronImage.jpg");
-        neutronBtn = new JButton(iconNeutron);
+        neutronBtn = new JButton("N", iconNeutron);
         neutronBtn.setBounds(0, 0, BTN_SIZE,
                 BTN_SIZE);
         add(neutronBtn);
 
 
         Icon iconProton = new ImageIcon("../resources/protonImage.jpg");
-        protonBtn = new JButton(iconProton);
+        protonBtn = new JButton("P", iconProton);
         protonBtn.setBounds(150, 0, BTN_SIZE,
                 BTN_SIZE);
         add(protonBtn);
 
         Icon iconElectron = new ImageIcon("../resources/electronImage.jpg");
-        electronBtn = new JButton(iconElectron);
+        electronBtn = new JButton("E", iconElectron);
         electronBtn.setBounds(300, 0, BTN_SIZE,
                 BTN_SIZE);
         add(electronBtn);
@@ -42,13 +42,13 @@ public class SelectionBar extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e){
         if (e.getSource() == neutronBtn){
-                selec = Particle.Type.NEUTRON;
-        }else if (e.getSource() == protonBtn){
-                selec = Particle.Type.PROTON;
-        }else if (e.getSource() == electronBtn){
-                selec = Particle.Type.ELECTRON;
+                selectedType = Particle.Type.NEUTRON;
+        } else if (e.getSource() == protonBtn){
+                selectedType = Particle.Type.PROTON;
+        } else if (e.getSource() == electronBtn){
+                selectedType = Particle.Type.ELECTRON;
         }
-        System.out.println(selec);
+        System.out.println(selectedType);
     }
 
 }
