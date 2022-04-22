@@ -18,6 +18,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
     static int width;
     static int height;
+    static int point;
 
     // TODO: déplacer cette enum dans une classe plus pertinente
     private enum Anchor {
@@ -150,6 +151,13 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        Point2D.Double startSpeed = direction;
 //        Physics.createParticle(SelectionBar.selectedType, launcherPosition.x, launcherPosition.y, 0.02,
 //                50, true, Color.ORANGE, startSpeed);
+
+//      Parcours toutes les particules d'antimatère, mesure la distance avec la souris au moment du clic et ajote un point si la souris est sur la particule
+        for(Particle p: Physics.antimatterParticles){
+            if(Math.abs(p.position.x-e.getX())<= p.COLLIDER_RADIUS && Math.abs(p.position.y-e.getY())<=p.COLLIDER_RADIUS){
+                point= point+1;
+            }
+        }   
     }
 
     public void mouseDragged(MouseEvent e) { }
