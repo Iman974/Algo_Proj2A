@@ -26,6 +26,12 @@ public class Vector2D {
         x *= scalar;
         y *= scalar;
     }
+    public double getDistanceTo(Vector2D v){
+		return Math.sqrt((this.x-v.x)*(this.x-v.x)+(this.y-v.y)*(this.y-v.y));
+	}
+	public double getDistanceSqTo(Vector2D v){
+		return ((this.x-v.x)*(this.x-v.x)+(this.y-v.y)*(this.y-v.y));
+	}
 
     public void rotateAround(Vector2D v, double angle) {
         //à compléter

@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.awt.geom.Point2D;
+
 
 public class Particle {
 
@@ -14,9 +14,9 @@ public class Particle {
     final int COLLIDER_RADIUS = 13;
 
     int charge;
-    Point2D.Double totalForce;
-    Point2D.Double speed;
-    Point2D.Double position;
+    Vector2D totalForce;
+    Vector2D speed;
+    Vector2D position;
     int moveAmplitude;
     Image img;
     double speedFrequency;
@@ -25,15 +25,15 @@ public class Particle {
     Type type;
 
     public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, boolean isPlayer, Color c,
-                    Point2D.Double startSpeed) {
-        this.position = new Point2D.Double(x, y);
+                    Vector2D startSpeed) {
+        this.position = new Vector2D(x, y);
         this.img = img;
         this.isFromPlayer = isPlayer;
         this.color = c;
-        this.totalForce = new Point2D.Double();
+        this.totalForce = new Vector2D(0,0);
         this.speedFrequency = frequency;
         this.moveAmplitude = amplitude;
-        this.speed = new Point2D.Double(startSpeed.x, startSpeed.y);
+        this.speed = new Vector2D(startSpeed.x, startSpeed.y);
 
         this.type = type;
         // On définit les propriétés de la particule selon son type
@@ -59,13 +59,12 @@ public class Particle {
 
     public void move() {
         // On normalise la vitesse pour avoir la direction de déplacement
-        double speedLength = speed.distance(0, 0);
-        Point2D.Double direction = new Point2D.Double(0, 0);
-        if (speedLength > 0) {
+        double speedLength = speed.getLength();
+        Vector2D direction = new Vector2D((Vector2D.getNormalized(speed)).x,(Vector2D.getNormalized(speed)).y);
+        /*if (speed.getLength() > 0) {
             // TODO: normalize vector function
-            direction.x =  speed.x / speedLength;
-            direction.y = speed.y / speedLength;
-        }
+			Vector2D direction = Vector2D.getNormalized(speed)).x,(Vector2D.getNormalized(speed)).y);
+        }*/
 
         final double PULSE = 2 * Math.PI * speedFrequency;
         // On evalue la valeur de la vitesse pour le mouvement sinusoïdal pour cette frame
@@ -93,9 +92,9 @@ public class Particle {
     // Applique la force de Coulomb sur l'autre particule
     public void applyForceTo(Particle other) {
         final double INTENSITY = 20;
-        Point2D.Double force = new Point2D.Double(
+        Vector2D force = new Vector2D(
                 other.position.x - this.position.x, other.position.y - this.position.y);
-        double factor = INTENSITY * this.charge * other.charge / Math.pow(force.distanceSq(0, 0), 1.5); // TODO: prevent division by zero /!\
+        double factor = INTENSITY * this.charge * other.charge / Math.pow(force.getSqrLength(), 1.5); // TODO: prevent division by zero /!\
 
         other.totalForce.x += force.x * factor;
         other.totalForce.y += force.y * factor;

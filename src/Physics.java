@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.awt.geom.Point2D;
+
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.Iterator;
@@ -20,8 +20,12 @@ public class Physics {
 
 
         createParticle(Particle.Type.PROTON, 70, 200, 0.02, 55, false, Color.magenta,
-                new Point2D.Double(2, 0));
+                new Vector2D(2, 0));
 //        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
+        spawnParticle();
+        spawnParticle();
+        spawnParticle();
+        spawnParticle();
         spawnParticle();
         spawnParticle();
         spawnParticle();
@@ -45,7 +49,7 @@ public class Physics {
                 if (other == p) {
                     continue;
                 }
-                if (p.position.distanceSq(other.position) <= Particle.FORCE_RADIUS * Particle.FORCE_RADIUS) {
+                if (p.position.getDistanceTo(other.position) <= Particle.FORCE_RADIUS * Particle.FORCE_RADIUS) {
                     other.applyForceTo(p);
                 }
             }
@@ -66,7 +70,7 @@ public class Physics {
 
     // Instancie une particule dans le jeu
     public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
-                                boolean fromPlayer, Color c, Point2D.Double startSpeed) {
+                                boolean fromPlayer, Color c, Vector2D startSpeed) {
         // Créé une image vierge, simplement pour les tests
         Image blankImg = new Image() {
             public int getWidth(ImageObserver observer) {
@@ -105,7 +109,7 @@ public class Physics {
                 if (p2.isFromPlayer) {
                     continue;
                 }
-                if (p1.position.distance(p2.position) < p1.COLLIDER_RADIUS + p2.COLLIDER_RADIUS) {
+                if (p1.position.getDistanceTo(p2.position) < p1.COLLIDER_RADIUS + p2.COLLIDER_RADIUS) {
                     System.out.println("Collision");
                     // Détruire les deux particules.
                     // Spawner une (ou plusieurs) particule(s) d'antimatière
@@ -118,15 +122,15 @@ public class Physics {
         int borderRandom = (int) (Math.random() * 3);
         if (borderRandom == 0) {
             createParticle(Particle.Type.PROTON, 0, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
-                    new Point2D.Double(2, 5 - Math.random() * 10));
+                    new Vector2D(2, 5 - Math.random() * 10));
         }
         if (borderRandom == 1) {
             createParticle(Particle.Type.PROTON, 700, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
-                    new Point2D.Double(-Math.random() * 5, 5 - Math.random() * 10));
+                    new Vector2D(-Math.random() * 5, 5 - Math.random() * 10));
         }
         if (borderRandom == 2) {
             createParticle(Particle.Type.PROTON, (int) (Math.random() * 700), 0, 0.02, 55, false, Color.magenta,
-                    new Point2D.Double(2 - Math.random() * 4, -Math.random() * 5));
+                    new Vector2D(2 - Math.random() * 4, -Math.random() * 5));
         }
     }
 }
