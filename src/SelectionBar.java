@@ -7,7 +7,8 @@ public class SelectionBar extends JPanel implements ActionListener {
     JButton protonBtn;
     JButton electronBtn;
     JButton neutronBtn;
-    Particle.Type selectedType;
+
+    public static Particle.Type selectedType;
 
     public SelectionBar() {
         final int BTN_SIZE = 100;

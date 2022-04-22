@@ -60,11 +60,7 @@ public class Particle {
     public void move() {
         // On normalise la vitesse pour avoir la direction de déplacement
         double speedLength = speed.getLength();
-        Vector2D direction = new Vector2D((Vector2D.getNormalized(speed)).x,(Vector2D.getNormalized(speed)).y);
-        /*if (speed.getLength() > 0) {
-            // TODO: normalize vector function
-			Vector2D direction = Vector2D.getNormalized(speed)).x,(Vector2D.getNormalized(speed)).y);
-        }*/
+        Vector2D direction = Vector2D.getNormalized(speed);
 
         final double PULSE = 2 * Math.PI * speedFrequency;
         // On evalue la valeur de la vitesse pour le mouvement sinusoïdal pour cette frame
@@ -92,9 +88,11 @@ public class Particle {
     // Applique la force de Coulomb sur l'autre particule
     public void applyForceTo(Particle other) {
         final double INTENSITY = 20;
-        Vector2D force = new Vector2D(
-                other.position.x - this.position.x, other.position.y - this.position.y);
-        double factor = INTENSITY * this.charge * other.charge / Math.pow(force.getSqrLength(), 1.5); // TODO: prevent division by zero /!\
+        Vector2D force = Vector2D.fromTo(this.position, other.position);
+        if (force.equals(Vector2D.zero)) {
+            return;
+        }
+        double factor = INTENSITY * this.charge * other.charge / Math.pow(force.getSqrLength(), 1.5);
 
         other.totalForce.x += force.x * factor;
         other.totalForce.y += force.y * factor;

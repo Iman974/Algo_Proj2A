@@ -26,9 +26,6 @@ public class Physics {
         spawnParticle();
         spawnParticle();
         spawnParticle();
-        spawnParticle();
-        spawnParticle();
-        spawnParticle();
     }
 
     public void updateScene() {
@@ -49,7 +46,7 @@ public class Physics {
                 if (other == p) {
                     continue;
                 }
-                if (p.position.getDistanceTo(other.position) <= Particle.FORCE_RADIUS * Particle.FORCE_RADIUS) {
+                if (Vector2D.sqrDistance(p.position, other.position) <= Particle.FORCE_RADIUS * Particle.FORCE_RADIUS) {
                     other.applyForceTo(p);
                 }
             }
@@ -109,7 +106,7 @@ public class Physics {
                 if (p2.isFromPlayer) {
                     continue;
                 }
-                if (p1.position.getDistanceTo(p2.position) < p1.COLLIDER_RADIUS + p2.COLLIDER_RADIUS) {
+                if (Vector2D.distance(p1.position, p2.position) < p1.COLLIDER_RADIUS + p2.COLLIDER_RADIUS) {
                     System.out.println("Collision");
                     // Détruire les deux particules.
                     // Spawner une (ou plusieurs) particule(s) d'antimatière

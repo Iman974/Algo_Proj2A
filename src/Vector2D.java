@@ -1,9 +1,38 @@
 public class Vector2D {
 
-    double x;
-    double y;
+    public double x;
+    public double y;
+
+    private static final double EPSILON = 1e-10;
+    public static final Vector2D zero = new Vector2D(0, 0);
+
+    // TODO: non-static ?
+    public static class Int {
+
+        int x;
+        int y;
+
+        public Int(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     public Vector2D(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Vector2D() {
+        this.x = 0;
+        this.y = 0;
+    }
+
+    public boolean equals(Vector2D other) {
+        return Vector2D.sqrDistance(this, other) < EPSILON * EPSILON;
+    }
+
+    public void set(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -18,6 +47,10 @@ public class Vector2D {
 
     public void normalize() {
         double length = getLength();
+        if (length < EPSILON) {
+            // Le vecteur est le vecteur nul.
+            return;
+        }
         x /= length;
         y /= length;
     }
@@ -26,19 +59,36 @@ public class Vector2D {
         x *= scalar;
         y *= scalar;
     }
-    public double getDistanceTo(Vector2D v){
-		return Math.sqrt((this.x-v.x)*(this.x-v.x)+(this.y-v.y)*(this.y-v.y));
-	}
-	public double getDistanceSqTo(Vector2D v){
-		return ((this.x-v.x)*(this.x-v.x)+(this.y-v.y)*(this.y-v.y));
-	}
+
+    public double getDistanceTo(Vector2D v) {
+        return Math.sqrt((this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y));
+    }
+
+    public double getDistanceSqTo(Vector2D v) {
+        return (this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y);
+    }
 
     public void rotateAround(Vector2D v, double angle) {
         //à compléter
     }
 
+    public Vector2D.Int toInt() {
+        return new Int((int) x, (int) y);
+    }
+
+    public static double sqrDistance(Vector2D a, Vector2D b) {
+        return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+    }
+
+    public static double distance(Vector2D a, Vector2D b) {
+        return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+    }
+
     public static Vector2D getNormalized(Vector2D v) {
         double length = v.getLength();
+        if (length < EPSILON) {
+            return new Vector2D();
+        }
         return new Vector2D(v.x / length, v.y / length);
     }
 
@@ -50,8 +100,15 @@ public class Vector2D {
         return new Vector2D(a.x + b.x, a.y + b.y);
     }
 
+    public static Vector2D moveBy(Vector2D v, double x, double y) {
+        return new Vector2D(v.x + x, v.y + y);
+    }
+
     public static Vector2D subtract(Vector2D a, Vector2D b) {
         return new Vector2D(a.x - b.x, a.y - b.y);
     }
 
+    public static Vector2D fromTo(Vector2D from, Vector2D to) {
+        return new Vector2D(to.x - from.x, to.y - from.y);
+    }
 }

@@ -11,7 +11,10 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     BufferedImage buffer;
     Graphics bufferG;
 
-    Point launcherPosition;
+    Vector2D launcherPosition;
+    Vector2D mousePosition;
+    Image aim;
+    Vector2D aimPosition;
 
     static int width;
     static int height;
@@ -20,6 +23,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     private enum Anchor {
         BOTTOM_MIDDLE,
         CENTER
+
     }
 
     public GameArea(int width, int height) {
@@ -28,7 +32,9 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         GameArea.width = width;
         GameArea.height = height;
 
-        this.launcherPosition = new Point(width / 2, height - 70);
+        this.launcherPosition = new Vector2D(width / 2.0, height - 70);
+        this.aimPosition = new Vector2D();
+        this.mousePosition = new Vector2D();
 
         this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         this.bufferG = buffer.getGraphics();
@@ -37,46 +43,49 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         addMouseMotionListener(this);
         addMouseListener(this);
 
-//        this.aim = new Image() {
-//            @Override
-//            public int getWidth(ImageObserver observer) {
-//                return 25;
-//            }
-//
-//            @Override
-//            public int getHeight(ImageObserver observer) {
-//                return 50;
-//            }
-//
-//            @Override
-//            public ImageProducer getSource() {
-//                return null;
-//            }
-//
-//            @Override
-//            public Graphics getGraphics() { return null; }
-//
-//            @Override
-//            public Object getProperty(String name, ImageObserver observer) {
-//                return null;
-//            }
-//        };
-    }
+        this.aim = new Image() {
+            @Override
+            public int getWidth(ImageObserver observer) {
+                return 25;
+            }
 
-//    Image aim;
-//    Point aimPosition = new Point(200, 200);
+            @Override
+            public int getHeight(ImageObserver observer) {
+                return 50;
+            }
+
+            @Override
+            public ImageProducer getSource() {
+                return null;
+            }
+
+            @Override
+            public Graphics getGraphics() { return null; }
+
+            @Override
+            public Object getProperty(String name, ImageObserver observer) {
+                return null;
+            }
+        };
+    }
 
     public void paintComponent(Graphics g) {
         // super.paintComponent(g); // TODO: Utile à conserver ?
         g.drawImage(buffer, 0, 0, null);
 
         // Dessine le viseur
-//        final int launcherDim = 50;
-//        g.drawRect(launcherPosition.x - launcherDim / 2, launcherPosition.y - launcherDim / 2, launcherDim, launcherDim); // Launcher
-//        g.setColor(Color.green);
-//        int w = aim.getWidth(null); int h = aim.getWidth(null);
-//        Point position = transpose(aimPosition.x, aimPosition.y, w, h, Anchor.BOTTOM_MIDDLE);
-//        g.drawRect(position.x, position.y, w, h);
+        final int LAUNCHER_DIM = 50;
+        Vector2D.Int launcherPos = transpose(launcherPosition, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
+        g.drawRect(launcherPos.x, launcherPos.y, LAUNCHER_DIM, LAUNCHER_DIM);
+
+        int w = aim.getWidth(null);
+        int h = aim.getHeight(null);
+        Vector2D direction = Vector2D.getNormalized(Vector2D.fromTo(launcherPosition, mousePosition));
+        aimPosition = Vector2D.add(launcherPosition, Vector2D.getScaled(direction, 65));
+        Vector2D.Int aimPos = transpose(aimPosition, w, h, Anchor.BOTTOM_MIDDLE).toInt();
+
+        g.setColor(Color.green);
+        g.drawRect(aimPos.x, aimPos.y, w, h);
 
         // Dessine le rayon d'interaction pour chaque particule
 //        g.setColor(Color.green);
@@ -86,17 +95,12 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        }
     }
 
-    private Point transpose(int x, int y, int width, int height, Anchor anchor) {
-        Point result = new Point();
+    // Transpose les coordonnées du repère physique au repère du dessin en fonction du point d'ancrage
+    private Vector2D transpose(Vector2D v, int width, int height, Anchor anchor) {
+        Vector2D result = null;
         switch (anchor) {
-            case BOTTOM_MIDDLE -> {
-                result.x = (int) (x - width / 2.0); // TODO: check diff with no casting
-                result.y = y - height;
-            }
-            case CENTER -> {
-                result.x = x - width / 2;
-                result.y = y - height / 2;
-            }
+            case BOTTOM_MIDDLE -> result = Vector2D.moveBy(v, -width / 2.0, -height); // TODO: check diff with no casting
+            case CENTER -> result = Vector2D.moveBy(v, -width / 2.0, -height / 2.0);
         }
         return result;
     }
@@ -133,13 +137,11 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void mouseMoved(MouseEvent e) {
-//        System.out.println(p);
+        Point p = e.getPoint();
+        mousePosition.set(p.x, p.y);
     }
 
     public void mouseClicked(MouseEvent e) {
-        Point p = e.getPoint();
-        System.out.println("Mouse clicked! at " + MainWindow.getFrame());
-
         // Spawn une particule dans la direction du launcher vers la souris
 //        Point2D.Double direction = new Point2D.Double(p.x - launcherPosition.x, p.y - launcherPosition.y);
 //        double l = direction.distance(0, 0);
