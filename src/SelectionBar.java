@@ -9,37 +9,37 @@ public class SelectionBar extends JPanel implements ActionListener {
     JButton neutronBtn;
     JLabel Score;
 
-    public static Particle.Type selectedType;
+    public static Particle.Type selectedType = Particle.Type.PROTON;
 
     public SelectionBar() {
-        final int BTN_SIZE = 50;
-        //setBounds(GameArea.width - BTN_SIZE - 10, GameArea.height - BTN_SIZE - 10, BTN_SIZE,
-        //        BTN_SIZE);
+        final int BUTTON_SIZE = 50;
+        //setBounds(GameArea.width - BUTTON_SIZE - 10, GameArea.height - BUTTON_SIZE - 10, BUTTON_SIZE,
+        //        BUTTON_SIZE);
         setBounds(0, 0, 230, 50);
         
         Icon iconNeutron = new ImageIcon("../resources/neutronImage.jpg");
         neutronBtn = new JButton("N", iconNeutron);
-        neutronBtn.setBounds(0, 0, BTN_SIZE,
-                BTN_SIZE);
+        neutronBtn.setBounds(0, 0, BUTTON_SIZE,
+                BUTTON_SIZE);
         add(neutronBtn);
 
 
         Icon iconProton = new ImageIcon("../resources/protonImage.jpg");
         protonBtn = new JButton("P", iconProton);
-        protonBtn.setBounds(60, 0, BTN_SIZE,
-                BTN_SIZE);
+        protonBtn.setBounds(60, 0, BUTTON_SIZE,
+                BUTTON_SIZE);
         add(protonBtn);
 
         Icon iconElectron = new ImageIcon("../resources/electronImage.jpg");
         electronBtn = new JButton("E", iconElectron);
-        electronBtn.setBounds(120, 0, BTN_SIZE,
-                BTN_SIZE);
+        electronBtn.setBounds(120, 0, BUTTON_SIZE,
+                BUTTON_SIZE);
         add(electronBtn);
 
         Score= new JLabel();
         Score.setSize(50,50);
         Score.setLocation(180,0);
-        Score.setText("score : "+GameArea.point);
+        Score.setText("score : "+GameArea.score);
         add(Score);
 
         neutronBtn.addActionListener (this);

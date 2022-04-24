@@ -3,8 +3,8 @@ public class Vector2D {
     public double x;
     public double y;
 
+    // Cette constante désigne le seuil à partir duquel une valeur est considéree comme nulle
     private static final double EPSILON = 1e-10;
-    public static final Vector2D zero = new Vector2D(0, 0);
 
     // TODO: non-static ?
     public static class Int {
@@ -49,10 +49,10 @@ public class Vector2D {
         double length = getLength();
         if (length < EPSILON) {
             // Le vecteur est le vecteur nul.
-            return;
+            set(0, 0);
+        } else {
+            scaleBy(1 / length);
         }
-        x /= length;
-        y /= length;
     }
 
     public void scaleBy(double scalar) {
@@ -64,12 +64,22 @@ public class Vector2D {
         return Math.sqrt((this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y));
     }
 
-    public double getDistanceSqTo(Vector2D v) {
+    public double getSqrDistanceTo(Vector2D v) {
         return (this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y);
     }
 
-    public void rotateAround(Vector2D v, double angle) {
-        //à compléter
+    public double getSqrDistanceTo(double x, double y) {
+        return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
+    }
+
+    public void moveBy(double deltaX, double deltaY) {
+        x += deltaX;
+        y += deltaY;
+    }
+
+    public void moveBy(Vector2D delta) {
+        x += delta.x;
+        y += delta.y;
     }
 
     public Vector2D.Int toInt() {
@@ -87,7 +97,7 @@ public class Vector2D {
     public static Vector2D getNormalized(Vector2D v) {
         double length = v.getLength();
         if (length < EPSILON) {
-            return new Vector2D();
+            return new Vector2D(0, 0);
         }
         return new Vector2D(v.x / length, v.y / length);
     }
@@ -100,8 +110,8 @@ public class Vector2D {
         return new Vector2D(a.x + b.x, a.y + b.y);
     }
 
-    public static Vector2D moveBy(Vector2D v, double x, double y) {
-        return new Vector2D(v.x + x, v.y + y);
+    public static Vector2D moveBy(Vector2D v, double deltaX, double deltaY) {
+        return new Vector2D(v.x + deltaX, v.y + deltaY);
     }
 
     public static Vector2D subtract(Vector2D a, Vector2D b) {

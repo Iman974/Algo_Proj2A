@@ -12,10 +12,10 @@ public class MainWindow extends JFrame implements ActionListener {
     GameArea gameArea;
     SelectionBar particleSelector;
 
-    public MainWindow(String nom, int width, int height) {
-        super(nom);
+    public MainWindow(String name, int width, int height) {
+        super(name);
         setSize(width, height);
-        setLocation(300, 200);
+        setLocation(300, 50);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
@@ -43,7 +43,7 @@ public class MainWindow extends JFrame implements ActionListener {
         physics = new Physics();
 
         // Initialisation du timer pour les animations
-        // Toujours mettre à 17 ms d'intervalle (hors test) = 60 fps
+        // Toujours mettre à 17 ms d'intervalle (hors test), ce qui équivaut ~60 fps
         Timer t = new Timer(17, w);
         t.start();
         System.out.println(System.getProperty("user.dir"));

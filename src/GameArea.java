@@ -1,24 +1,24 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 
 public class GameArea extends JPanel implements MouseMotionListener, MouseListener {
 
     BufferedImage buffer;
     Graphics bufferG;
 
-    Vector2D launcherPosition;
+    Vector2D launcherOrigin;
     Vector2D mousePosition;
-    Image aim;
+    BufferedImage aim;
     Vector2D aimPosition;
 
     static int width;
     static int height;
-    static int point;
+    static int score;
 
     // TODO: déplacer cette enum dans une classe plus pertinente
     private enum Anchor {
@@ -33,7 +33,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         GameArea.width = width;
         GameArea.height = height;
 
-        this.launcherPosition = new Vector2D(width / 2.0, height - 70);
+        this.launcherOrigin = new Vector2D(width / 2.0, height - 70);
         this.aimPosition = new Vector2D();
         this.mousePosition = new Vector2D();
 
@@ -44,49 +44,53 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         addMouseMotionListener(this);
         addMouseListener(this);
 
-        this.aim = new Image() {
-            @Override
-            public int getWidth(ImageObserver observer) {
-                return 25;
-            }
-
-            @Override
-            public int getHeight(ImageObserver observer) {
-                return 50;
-            }
-
-            @Override
-            public ImageProducer getSource() {
-                return null;
-            }
-
-            @Override
-            public Graphics getGraphics() { return null; }
-
-            @Override
-            public Object getProperty(String name, ImageObserver observer) {
-                return null;
-            }
-        };
+//        this.aim = new Image() {
+//            @Override
+//            public int getWidth(ImageObserver observer) {
+//                return 25;
+//            }
+//
+//            @Override
+//            public int getHeight(ImageObserver observer) {
+//                return 50;
+//            }
+//
+//            @Override
+//            public ImageProducer getSource() {
+//                return null;
+//            }
+//
+//            @Override
+//            public Graphics getGraphics() {
+//                return null;
+//            }
+//
+//            @Override
+//            public Object getProperty(String name, ImageObserver observer) {
+//                return null;
+//            }
+//        };
     }
 
     public void paintComponent(Graphics g) {
-        // super.paintComponent(g); // TODO: Utile à conserver ?
+//         super.paintComponent(g); // TODO: Utile à conserver ?
         g.drawImage(buffer, 0, 0, null);
 
         // Dessine le viseur
         final int LAUNCHER_DIM = 50;
-        Vector2D.Int launcherPos = transpose(launcherPosition, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
+        Vector2D.Int launcherPos = transpose(launcherOrigin, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
         g.drawRect(launcherPos.x, launcherPos.y, LAUNCHER_DIM, LAUNCHER_DIM);
 
-        int w = aim.getWidth(null);
-        int h = aim.getHeight(null);
-        Vector2D direction = Vector2D.getNormalized(Vector2D.fromTo(launcherPosition, mousePosition));
-        aimPosition = Vector2D.add(launcherPosition, Vector2D.getScaled(direction, 65));
-        Vector2D.Int aimPos = transpose(aimPosition, w, h, Anchor.BOTTOM_MIDDLE).toInt();
+        Vector2D direction = Vector2D.fromTo(launcherOrigin, mousePosition);
+        direction.normalize();
+        aimPosition = Vector2D.add(launcherOrigin, Vector2D.getScaled(direction, 65));
+//        Vector2D.Int aimImgSize = new Vector2D.Int(aim.getWidth(null), aim.getHeight(null));
+//        Vector2D.Int aimPos = transpose(aimPosition, w, h, Anchor.BOTTOM_MIDDLE).toInt();
 
+        // Version temporaire de l'affichage du viseur sans image
         g.setColor(Color.green);
-        g.drawRect(aimPos.x, aimPos.y, w, h);
+        Vector2D.Int lineEnd = Vector2D.add(launcherOrigin, aimPosition).toInt();
+        g.drawLine((int)launcherOrigin.x, (int)launcherOrigin.y, (int)aimPosition.x, (int)aimPosition.y);
 
         // Dessine le rayon d'interaction pour chaque particule
 //        g.setColor(Color.green);
@@ -96,12 +100,28 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        }
     }
 
-    // Transpose les coordonnées du repère physique au repère du dessin en fonction du point d'ancrage
-    private Vector2D transpose(Vector2D v, int width, int height, Anchor anchor) {
+    // Effectue la rotation d'une image et la retourne (angle en radians)
+    public BufferedImage rotate(BufferedImage img, double angle) {
+        final double sin = Math.abs(Math.sin(angle));
+        final double cos = Math.abs(Math.cos(angle));
+        final int w = (int) Math.floor(img.getWidth() * cos + img.getHeight() * sin);
+        final int h = (int) Math.floor(img.getHeight() * cos + img.getWidth() * sin);
+        final BufferedImage rotatedImage = new BufferedImage(w, h, img.getType());
+        final AffineTransform transform = new AffineTransform();
+        transform.translate(w / 2.0, h / 2.0);
+        transform.rotate(angle,0, 0);
+        transform.translate(-img.getWidth() / 2, -img.getHeight() / 2);
+        final AffineTransformOp rotateOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+
+        return rotateOp.filter(img, rotatedImage);
+    }
+
+    // Transpose des coordonnées du repère physique au repère du dessin en fonction du point d'ancrage
+    private Vector2D transpose(Vector2D coords, int width, int height, Anchor anchor) {
         Vector2D result = null;
         switch (anchor) {
-            case BOTTOM_MIDDLE -> result = Vector2D.moveBy(v, -width / 2.0, -height); // TODO: check diff with no casting
-            case CENTER -> result = Vector2D.moveBy(v, -width / 2.0, -height / 2.0);
+            case BOTTOM_MIDDLE -> result = Vector2D.moveBy(coords, -width / 2.0, -height); // TODO: check diff with no casting
+            case CENTER -> result = Vector2D.moveBy(coords, -width / 2.0, -height / 2.0);
         }
         return result;
     }
@@ -126,8 +146,8 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         Point particleSize = new Point(p.img.getWidth(null), p.img.getHeight(null));
 
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        int x = (int)(p.position.x - particleSize.x / 2.0);
-        int y = (int)(p.position.y - particleSize.y / 2.0);
+        int x = (int) (p.position.x - particleSize.x / 2.0);
+        int y = (int) (p.position.y - particleSize.y / 2.0);
 
         bufferG.fillOval(x, y, 25, 25);
 
@@ -138,26 +158,23 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void mouseMoved(MouseEvent e) {
-        Point p = e.getPoint();
-        mousePosition.set(p.x, p.y);
+        mousePosition.set(e.getX(), e.getY());
     }
 
     public void mouseClicked(MouseEvent e) {
         // Spawn une particule dans la direction du launcher vers la souris
-//        Point2D.Double direction = new Point2D.Double(p.x - launcherPosition.x, p.y - launcherPosition.y);
-//        double l = direction.distance(0, 0);
-//        direction.x /= l * 0.1;
-//        direction.y /= l * 0.1;
-//        Point2D.Double startSpeed = direction;
-//        Physics.createParticle(SelectionBar.selectedType, launcherPosition.x, launcherPosition.y, 0.02,
-//                50, true, Color.ORANGE, startSpeed);
+        Vector2D direction = new Vector2D(e.getX() - launcherOrigin.x, e.getY() - launcherOrigin.y);
+        direction.normalize();
+        Vector2D startSpeed = Vector2D.getScaled(direction, 10);
+        Physics.createParticle(SelectionBar.selectedType, (int)launcherOrigin.x, (int)launcherOrigin.y, 0.02,
+                50, Math.random() * 2 * Math.PI, true, startSpeed);
 
-//      Parcours toutes les particules d'antimatère, mesure la distance avec la souris au moment du clic et ajote un point si la souris est sur la particule
-        for(Particle p: Physics.antimatterParticles){
-            if(Math.abs(p.position.x-e.getX())<= p.COLLIDER_RADIUS && Math.abs(p.position.y-e.getY())<=p.COLLIDER_RADIUS){
-                point= point+1;
+        // Détection de clic sur une particule d'antimatière
+        for (Particle p : Physics.antimatterParticles) {
+            if (p.position.getSqrDistanceTo(e.getX(), e.getY()) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
+                score = score + 1;
             }
-        }   
+        }
     }
 
     public void mouseDragged(MouseEvent e) { }

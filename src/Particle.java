@@ -13,65 +13,66 @@ public class Particle {
     final static int FORCE_RADIUS = 165;
     final int COLLIDER_RADIUS = 13;
 
-    int charge;
+    final int moveAmplitude;
+    final double speedFrequency;
+    final double phaseOffset;
+
+    final int charge;
     Vector2D totalForce;
     Vector2D speed;
     Vector2D position;
-    int moveAmplitude;
     Image img;
-    double speedFrequency;
     boolean isFromPlayer;
     Color color;
     Type type;
 
-    public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, boolean isPlayer, Color c,
+    public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, double phase, boolean isPlayer,
                     Vector2D startSpeed) {
         this.position = new Vector2D(x, y);
         this.img = img;
         this.isFromPlayer = isPlayer;
-        this.color = c;
         this.totalForce = new Vector2D(0,0);
         this.speedFrequency = frequency;
         this.moveAmplitude = amplitude;
         this.speed = new Vector2D(startSpeed.x, startSpeed.y);
+        this.phaseOffset = phase;
 
         this.type = type;
         // On définit les propriétés de la particule selon son type
         switch (type) {
             case NEUTRON:
                 this.charge = 0;
-
+                this.color = Color.LIGHT_GRAY;
                 break;
             case PROTON:
                 this.charge = 1;
-
+                this.color = Color.RED;
                 break;
             case ELECTRON:
                 this.charge = -1;
-
+                this.color = Color.CYAN;
                 break;
             case ANTIMATTER:
                 this.charge = 0;
-
+                this.color = Color.YELLOW;
                 break;
+            default:
+                this.charge = 0;
         }
     }
 
     public void move() {
         // On normalise la vitesse pour avoir la direction de déplacement
-        double speedLength = speed.getLength();
         Vector2D direction = Vector2D.getNormalized(speed);
 
         final double PULSE = 2 * Math.PI * speedFrequency;
         // On evalue la valeur de la vitesse pour le mouvement sinusoïdal pour cette frame
-        double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * MainWindow.getFrame());
+        double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * MainWindow.getFrame() + phaseOffset);
 
-        speed.x += totalForce.x;
-        speed.y += totalForce.y;
+        speed.moveBy(totalForce);
         // Le mouvement est la somme d'un mouvement sinusoïdal dans la direction transverse à un second
         // mouvement qui est longitudinal (vers l'avant)
-        position.x += (waveSpeedEval * -direction.y) + speed.x;
-        position.y += (waveSpeedEval * direction.x) + speed.y;
+        position.moveBy((waveSpeedEval * -direction.y) + speed.x, (waveSpeedEval * direction.x) + speed.y);
 //        if( position.x>= 650|| position.x<=10){
 //			speed.x=-speed.x;
 //		}
@@ -81,15 +82,16 @@ public class Particle {
     }
 
     public void resetForce() {
-        this.totalForce.x = 0;
-        this.totalForce.y = 0;
+        totalForce.set(0, 0);
     }
 
     // Applique la force de Coulomb sur l'autre particule
     public void applyForceTo(Particle other) {
-        final double INTENSITY = 20;
+        final double INTENSITY = 200;
         Vector2D force = Vector2D.fromTo(this.position, other.position);
-        if (force.equals(Vector2D.zero)) {
+
+        final Vector2D zero = new Vector2D(0, 0);
+        if (force.equals(zero)) {
             return;
         }
         double factor = INTENSITY * this.charge * other.charge / Math.pow(force.getSqrLength(), 1.5);
