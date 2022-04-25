@@ -13,19 +13,20 @@ public class Particle {
     final static int FORCE_RADIUS = 165;
     final int COLLIDER_RADIUS = 13;
 
-    final int moveAmplitude;
-    final double speedFrequency;
-    final double phaseOffset;
+    private final int moveAmplitude;
+    private final double speedFrequency;
+    private final double phaseOffset;
+    private final int charge;
 
-    final int charge;
-    Vector2D totalForce;
-    Vector2D speed;
-    Vector2D position;
-    Image img;
-    boolean isFromPlayer;
-    Color color;
-    Type type;
+    final Vector2D totalForce;
+    final Vector2D speed;
+    final Vector2D position;
+    final Image img;
+    final boolean isFromPlayer;
+    final Color color;
+    final Type type;
 
+    // TODO: Ne pas utiliser de Vector2D en paramètre car passage par référence (dans tout le code)
     public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, double phase, boolean isPlayer,
                     Vector2D startSpeed) {
         this.position = new Vector2D(x, y);
@@ -58,6 +59,7 @@ public class Particle {
                 break;
             default:
                 this.charge = 0;
+                this.color = null;
         }
     }
 

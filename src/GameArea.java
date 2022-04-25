@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 public class GameArea extends JPanel implements MouseMotionListener, MouseListener {
 
     BufferedImage buffer;
-    Graphics bufferG;
+    static Graphics bufferG;
 
     Vector2D launcherOrigin;
     Vector2D mousePosition;
@@ -73,13 +73,13 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void paintComponent(Graphics g) {
-//         super.paintComponent(g); // TODO: Utile à conserver ?
-        g.drawImage(buffer, 0, 0, null);
+         super.paintComponent(g); // TODO: Utile à conserver ?
 
         // Dessine le viseur
         final int LAUNCHER_DIM = 50;
         Vector2D.Int launcherPos = transpose(launcherOrigin, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
-        g.drawRect(launcherPos.x, launcherPos.y, LAUNCHER_DIM, LAUNCHER_DIM);
+        bufferG.setColor(Color.DARK_GRAY);
+        bufferG.drawRect(launcherPos.x, launcherPos.y, LAUNCHER_DIM, LAUNCHER_DIM);
 
         Vector2D direction = Vector2D.fromTo(launcherOrigin, mousePosition);
         direction.normalize();
@@ -88,9 +88,9 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        Vector2D.Int aimPos = transpose(aimPosition, w, h, Anchor.BOTTOM_MIDDLE).toInt();
 
         // Version temporaire de l'affichage du viseur sans image
-        g.setColor(Color.green);
+        bufferG.setColor(Color.green);
         Vector2D.Int lineEnd = Vector2D.add(launcherOrigin, aimPosition).toInt();
-        g.drawLine((int)launcherOrigin.x, (int)launcherOrigin.y, (int)aimPosition.x, (int)aimPosition.y);
+        bufferG.drawLine((int)launcherOrigin.x, (int)launcherOrigin.y, (int)aimPosition.x, (int)aimPosition.y);
 
         // Dessine le rayon d'interaction pour chaque particule
 //        g.setColor(Color.green);
@@ -98,6 +98,8 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        for (Particle p : Physics.allParticles) {
 //            g.drawOval((int)(p.position.x - radius), (int)(p.position.y - radius), radius * 2, radius * 2);
 //        }
+
+        g.drawImage(buffer, 0, 0, null);
     }
 
     // Effectue la rotation d'une image et la retourne (angle en radians)
@@ -162,8 +164,10 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void mouseClicked(MouseEvent e) {
+        mousePosition.set(e.getX(), e.getY());
+
         // Spawn une particule dans la direction du launcher vers la souris
-        Vector2D direction = new Vector2D(e.getX() - launcherOrigin.x, e.getY() - launcherOrigin.y);
+        Vector2D direction = Vector2D.fromTo(launcherOrigin, mousePosition);
         direction.normalize();
         Vector2D startSpeed = Vector2D.getScaled(direction, 10);
         Physics.createParticle(SelectionBar.selectedType, (int)launcherOrigin.x, (int)launcherOrigin.y, 0.02,
@@ -186,4 +190,8 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     public void mouseEntered(MouseEvent e) { }
 
     public void mouseExited(MouseEvent e) { }
+
+    public static Vector2D getCenter() {
+        return new Vector2D(width / 2.0, height / 2.0);
+    }
 }

@@ -4,6 +4,8 @@ import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Physics {
 
@@ -19,20 +21,27 @@ public class Physics {
         collidableParticles = new LinkedList<Particle>();
         antimatterParticles = new LinkedList<Particle>();
 
-        createParticle(Particle.Type.PROTON, 70, 200, 0.02, 55, 0, false,
-                new Vector2D(2, 0));
-//        createParticle(Particle.Type.ELECTRON, 320, 120, 1, 0, false, Color.red);
-        spawnParticle();
-        spawnParticle();
-        spawnParticle();
-        spawnParticle();
+        final int MIN_PARTICLES_PER_WAVE = 2;
+        final int MAX_PARTICLES_PER_WAVE = 8;
+        final long MIN_WAVE_DELAY = 3000;
+        final long MAX_WAVE_DELAY = 6500;
+
+        Timer physicsTimer = new Timer();
+        physicsTimer.schedule(new TimerTask() {
+            public void run() {
+//                int particlesCount = Utility.getRandomInRange(MIN_PARTICLES_PER_WAVE, MAX_PARTICLES_PER_WAVE);
+                for (int i = 0; i < 5; i++) {
+                    spawnParticle();
+                }
+            }
+        }, 0, 5000);
     }
 
     public void updateScene() {
         // Détruit toute particule qui sort de l'écran
         for (Iterator<Particle> iterator = allParticles.iterator(); iterator.hasNext();) {
             Particle p = iterator.next();
-            final int LIMIT = 50;
+            final int LIMIT = 2400;
             if (p.position.x < -LIMIT || p.position.x > GameArea.width + LIMIT ||
                     p.position.y < -LIMIT || p.position.y > GameArea.height + LIMIT) {
                 destroyParticle(p);
@@ -115,19 +124,43 @@ public class Physics {
         }
     }
 
+    /*
+    Spawn une particule aléatoirement. Elle apparaît sortant d'une bordure de l'écran, sauf celle en bas.
+     */
     public void spawnParticle() {
-        int borderRandom = (int) (Math.random() * 3);
-//        if (borderRandom == 0) {
-//            createParticle(Particle.Type.PROTON, 0, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
-//                    new Vector2D(2, 5 - Math.random() * 10));
-//        }
-//        if (borderRandom == 1) {
-//            createParticle(Particle.Type.PROTON, 700, (int) (Math.random() * 700), 0.02, 55, false, Color.magenta,
-//                    new Vector2D(-Math.random() * 5, 5 - Math.random() * 10));
-//        }
-//        if (borderRandom == 2) {
-//            createParticle(Particle.Type.PROTON, (int) (Math.random() * 700), 0, 0.02, 55, false, Color.magenta,
-//                    new Vector2D(2 - Math.random() * 4, -Math.random() * 5));
-//        }
+        Particle.Type[] types = Particle.Type.values();
+        Particle.Type randomType = types[(int)(Math.random() * types.length)];
+
+        final int OUTER_MARGIN = 50; // Retrait des bordures déterminant à partir d'où on spawn les particules
+        final double START_SPEED_ANGLE_RANGE = 45; // Angle d'ouverture du cône de vitesse initiale
+        final double DIST_OFFSET_RANGE = 200;
+        final double MIN_FREQUENCY = 0.01;
+        final double MAX_FREQUENCY = 0.06;
+        final int MIN_AMPLITUDE = 25;
+        final int MAX_AMPLITUDE = 75;
+        final int MIN_SPEED = 4;
+        final int MAX_SPEED = 12;
+        final double ANGLE_RANGE = Math.toRadians(80);
+
+        Vector2D randomDirection = Vector2D.getRandomRangeUnitary(Math.toRadians(40), Math.toRadians(140), true);
+        int width = GameArea.width;
+        int height = GameArea.height;
+        Vector2D randomScaledDirection = Vector2D.getScaled(randomDirection,
+                Math.sqrt(width * width + height * height) / 2 + OUTER_MARGIN + Math.random() * DIST_OFFSET_RANGE);
+        Vector2D.Int startPosition = Vector2D.add(GameArea.getCenter(), randomScaledDirection).toInt();
+
+        int randomSpeed = Utility.getRandomInRange(MIN_SPEED, MAX_SPEED);
+        double randomFrequency = Utility.getRandomInRange(MIN_FREQUENCY, MAX_FREQUENCY);
+        double randomPhase = Math.random() * 2 * Math.PI; // TODO : supprimer parametre phase et mettre dans cstrctor particle
+        int randomAmplitude = Utility.getRandomInRange(MIN_AMPLITUDE, MAX_AMPLITUDE);
+
+        double dirAngle = Math.atan2(randomDirection.y, randomDirection.x);
+        if (dirAngle < 0) {
+            dirAngle += 2 * Math.PI;
+        }
+        Vector2D randomSpeedDir = Vector2D.getRandomRangeUnitary(dirAngle - ANGLE_RANGE / 2, dirAngle + ANGLE_RANGE / 2);
+
+        createParticle(randomType, startPosition.x, startPosition.y, randomFrequency, randomAmplitude, randomPhase,
+                false, Vector2D.getScaled(randomSpeedDir, -randomSpeed));
     }
 }

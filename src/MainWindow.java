@@ -22,14 +22,14 @@ public class MainWindow extends JFrame implements ActionListener {
         // Initialisation graphique
         JPanel background = new JPanel();
         background.setLayout(null);
-        Insets insets = this.getInsets();
+        Insets insets = getInsets();
         background.setBounds(0, 0, getWidth() - insets.left - insets.right,
                 getHeight() - insets.top - insets.bottom);
         add(background);
 
         this.gameArea = new GameArea(background.getWidth(), background.getHeight());
 
-        particleSelector = new SelectionBar();
+        this.particleSelector = new SelectionBar();
         background.add(this.gameArea);
         this.gameArea.add(particleSelector);
     }
@@ -39,14 +39,14 @@ public class MainWindow extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        MainWindow w = new MainWindow("Game", 700, 700);
+        MainWindow w = new MainWindow("Game", 900, 700);
         physics = new Physics();
 
         // Initialisation du timer pour les animations
         // Toujours mettre à 17 ms d'intervalle (hors test), ce qui équivaut ~60 fps
         Timer t = new Timer(17, w);
         t.start();
-        System.out.println(System.getProperty("user.dir"));
+//        System.out.println(System.getProperty("user.dir"));
     }
 
     // Appelée à chaque frame

@@ -121,4 +121,31 @@ public class Vector2D {
     public static Vector2D fromTo(Vector2D from, Vector2D to) {
         return new Vector2D(to.x - from.x, to.y - from.y);
     }
+
+    // Retourne un vecteur de direction aléatoire et de norme 1.
+    public static Vector2D getRandomUnitary() {
+        double randomAngle = Math.random() * 2 * Math.PI;
+        return new Vector2D(Math.cos(randomAngle), Math.sin(randomAngle));
+    }
+
+    // Retourne un vecteur de norme 1 et de direction aléatoire excluant les directions comprises
+    // entre startAngle et endAngle (en radians, entre 0 et pi) si exclude est true,
+    // sinon la direction est comprise entre les angles en paramètre.
+    public static Vector2D getRandomRangeUnitary(double startAngle, double endAngle, boolean exclude) {
+        double randomAngle;
+        if (exclude) {
+            double range = endAngle - startAngle;
+            randomAngle = Math.random() * (2 * Math.PI - range);
+            if (randomAngle > startAngle) {
+                randomAngle += range;
+            }
+        } else {
+            randomAngle = Utility.getRandomInRange(startAngle, endAngle);
+        }
+        return new Vector2D(Math.cos(randomAngle), Math.sin(randomAngle));
+    }
+
+    public static Vector2D getRandomRangeUnitary(double startAngle, double endAngle) {
+        return getRandomRangeUnitary(startAngle, endAngle, false);
+    }
 }
