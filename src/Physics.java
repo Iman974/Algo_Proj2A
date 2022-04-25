@@ -23,18 +23,40 @@ public class Physics {
 
         final int MIN_PARTICLES_PER_WAVE = 2;
         final int MAX_PARTICLES_PER_WAVE = 8;
-        final long MIN_WAVE_DELAY = 3000;
-        final long MAX_WAVE_DELAY = 6500;
+        final int MIN_WAVE_DELAY = 3000;
+        final int MAX_WAVE_DELAY = 6500;
+
 
         Timer physicsTimer = new Timer();
-        physicsTimer.schedule(new TimerTask() {
+
+        TimerTask waveTask = new TimerTask() {
             public void run() {
-//                int particlesCount = Utility.getRandomInRange(MIN_PARTICLES_PER_WAVE, MAX_PARTICLES_PER_WAVE);
-                for (int i = 0; i < 5; i++) {
+                spawnWave();
+                scheduleNextWave();
+            }
+
+            public void spawnWave() {
+                int particlesCount = Utility.getRandomInRange(MIN_PARTICLES_PER_WAVE, MAX_PARTICLES_PER_WAVE);
+                for (int i = 0; i < particlesCount; i++) {
                     spawnParticle();
                 }
+
+                System.out.println("Wave spawned");
             }
-        }, 0, 5000);
+
+            public void scheduleNextWave() {
+                long randomDelay = Utility.getRandomInRange(MIN_WAVE_DELAY, MAX_WAVE_DELAY);
+                TimerTask nextWave = new TimerTask() {
+                    public void run() {
+                        spawnWave();
+                        scheduleNextWave();
+                    }
+                };
+                physicsTimer.schedule(nextWave, randomDelay);
+            }
+        };
+        // Lance la 1ère vague, qui entraînera les suivantes.
+        waveTask.run();
     }
 
     public void updateScene() {
