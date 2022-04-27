@@ -1,4 +1,9 @@
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.Buffer;
 
 
 public class Particle {
@@ -9,6 +14,8 @@ public class Particle {
         ELECTRON,
         ANTIMATTER
     }
+
+    public boolean isDead;
 
     final static int FORCE_RADIUS = 165;
     final int COLLIDER_RADIUS = 13;
@@ -21,23 +28,23 @@ public class Particle {
     final Vector2D totalForce;
     final Vector2D speed;
     final Vector2D position;
-    final Image img;
+    final BufferedImage img;
     final boolean isFromPlayer;
     final Color color;
     final Type type;
 
     // TODO: Ne pas utiliser de Vector2D en paramètre car passage par référence (dans tout le code)
-    public Particle(Type type, int x, int y, Image img, double frequency, int amplitude, double phase, boolean isPlayer,
+    public Particle(Type type, int x, int y, double frequency, int amplitude, double phase, boolean isPlayer,
                     Vector2D startSpeed) {
         this.position = new Vector2D(x, y);
-        this.img = img;
         this.isFromPlayer = isPlayer;
         this.totalForce = new Vector2D(0,0);
         this.speedFrequency = frequency;
         this.moveAmplitude = amplitude;
-        this.speed = new Vector2D(startSpeed.x, startSpeed.y);
+        this.speed = startSpeed.copy();
         this.phaseOffset = phase;
 
+//        this.img = getParticleImage();
         this.type = type;
         // On définit les propriétés de la particule selon son type
         switch (type) {
@@ -61,6 +68,27 @@ public class Particle {
                 this.charge = 0;
                 this.color = null;
         }
+
+        this.img = getParticleImage();
+    }
+
+    private BufferedImage getParticleImage() {
+        String currentDirectory = System.getProperty("user.dir");
+
+        String root;
+        if (currentDirectory.contains("src")) {
+            root = "..\\resources\\";
+        } else {
+            root = "\\resources\\";
+        }
+        System.out.println(currentDirectory + root + type + ".png");
+        File imageFile = new File(currentDirectory, root + type + ".png");
+        try {
+            return ImageIO.read(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void move() {
@@ -71,16 +99,10 @@ public class Particle {
         // On evalue la valeur de la vitesse pour le mouvement sinusoïdal pour cette frame
         double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * MainWindow.getFrame() + phaseOffset);
 
-        speed.moveBy(totalForce);
+        speed.add(totalForce);
         // Le mouvement est la somme d'un mouvement sinusoïdal dans la direction transverse à un second
         // mouvement qui est longitudinal (vers l'avant)
-        position.moveBy((waveSpeedEval * -direction.y) + speed.x, (waveSpeedEval * direction.x) + speed.y);
-//        if( position.x>= 650|| position.x<=10){
-//			speed.x=-speed.x;
-//		}
-//		if( position.y<=10||position.y>=650){
-//			speed.y=-speed.y;
-//		}
+        position.add((waveSpeedEval * -direction.y) + speed.x, (waveSpeedEval * direction.x) + speed.y);
     }
 
     public void resetForce() {
@@ -97,8 +119,8 @@ public class Particle {
             return;
         }
         double factor = INTENSITY * this.charge * other.charge / Math.pow(force.getSqrLength(), 1.5);
+        force.scale(factor);
 
-        other.totalForce.x += force.x * factor;
-        other.totalForce.y += force.y * factor;
+        other.totalForce.add(force);
     }
 }

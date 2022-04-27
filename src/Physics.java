@@ -1,9 +1,10 @@
-import java.awt.*;
-
+import java.awt.Image;
+import java.awt.Graphics;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,18 +61,16 @@ public class Physics {
     }
 
     public void updateScene() {
-        // Détruit toute particule qui sort de l'écran
-        for (Iterator<Particle> iterator = allParticles.iterator(); iterator.hasNext();) {
-            Particle p = iterator.next();
+        for (Particle p : allParticles) {
+            // Détruit toute particule qui sort de l'écran
             final int LIMIT = 2400;
             if (p.position.x < -LIMIT || p.position.x > GameArea.width + LIMIT ||
                     p.position.y < -LIMIT || p.position.y > GameArea.height + LIMIT) {
                 destroyParticle(p);
-                iterator.remove();
+                System.out.println("Destroyed particle");
+                continue;
             }
-        }
 
-        for (Particle p : allParticles) {
             p.resetForce();
             for (Particle other : allParticles) {
                 if (other == p) {
@@ -85,44 +84,31 @@ public class Physics {
             p.move();
             checkCollisions();
         }
+
+        removeDeadParticles(allParticles);
+        removeDeadParticles(collidableParticles);
+        removeDeadParticles(antimatterParticles);
     }
 
     public void destroyParticle(Particle p) {
-        if (p.type == Particle.Type.ANTIMATTER) {
-            antimatterParticles.remove(p);
-        }
-        if (p.isFromPlayer || p.type == Particle.Type.ANTIMATTER) {
-            collidableParticles.remove(p);
+        p.isDead = true;
+    }
+
+    // Supprime toutes les particules marquées comme 'dead' dans la liste donnée
+    public void removeDeadParticles(List<Particle> particleList) {
+        for (Iterator<Particle> iterator = particleList.iterator(); iterator.hasNext();) {
+            Particle p = iterator.next();
+            if (p.isDead) {
+                iterator.remove();
+            }
         }
     }
 
     // Instancie une particule dans le jeu
-    public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude, double startPhase,
+    public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
                                 boolean fromPlayer, Vector2D startSpeed) {
-        // Créé une image vierge, simplement pour les tests
-        Image blankImg = new Image() {
-            public int getWidth(ImageObserver observer) {
-                return 25;
-            }
-
-            public int getHeight(ImageObserver observer) {
-                return 25;
-            }
-
-            public ImageProducer getSource() {
-                return null;
-            }
-
-            public Graphics getGraphics() {
-                return null;
-            }
-
-            public Object getProperty(String name, ImageObserver observer) {
-                return null;
-            }
-        };
-
-        Particle p = new Particle(type, x, y, blankImg, frequency, amplitude, startPhase, fromPlayer, startSpeed);
+        double randomPhase = Math.random() * 2 * Math.PI;
+        Particle p = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
 
         allParticles.add(p);
         if (fromPlayer) {
@@ -131,16 +117,22 @@ public class Physics {
     }
 
     public void checkCollisions() {
-        // On parcourt les listes avec des for each car ce sont des LinkedList
         for (Particle p1 : collidableParticles) {
             for (Particle p2 : allParticles) {
-                if (p2.isFromPlayer) {
+                // Pour chaque particule pouvant causer une collision, on vérifie la distance qui la sépare
+                // à chaque autre particule
+                if (p1 == p2) {
+                    // On exclue la particule elle-même
                     continue;
                 }
                 if (Vector2D.distance(p1.position, p2.position) < p1.COLLIDER_RADIUS + p2.COLLIDER_RADIUS) {
-                    System.out.println("Collision");
-                    // Détruire les deux particules.
-                    // Spawner une (ou plusieurs) particule(s) d'antimatière
+                    Vector2D.Int spawnPosition = Vector2D.middle(p1.position, p2.position).toInt();
+
+                    int speedFactor = Utility.getRandomInRange(4, 13);
+                    Vector2D randomSpeed = Vector2D.getScaled(Vector2D.getRandomUnitary(), speedFactor);
+//                    createParticle(Particle.Type.ANTIMATTER, spawnPosition.x, spawnPosition.y, 0.1, 20, false, randomSpeed);
+                    destroyParticle(p1);
+                    destroyParticle(p2);
                 }
             }
         }
@@ -151,7 +143,7 @@ public class Physics {
      */
     public void spawnParticle() {
         Particle.Type[] types = Particle.Type.values();
-        Particle.Type randomType = types[(int)(Math.random() * types.length)];
+        Particle.Type randomType = types[(int)(Math.random() * (types.length - 1))];
 
         final int OUTER_MARGIN = 50; // Retrait des bordures déterminant à partir d'où on spawn les particules
         final double START_SPEED_ANGLE_RANGE = 45; // Angle d'ouverture du cône de vitesse initiale
@@ -173,7 +165,6 @@ public class Physics {
 
         int randomSpeed = Utility.getRandomInRange(MIN_SPEED, MAX_SPEED);
         double randomFrequency = Utility.getRandomInRange(MIN_FREQUENCY, MAX_FREQUENCY);
-        double randomPhase = Math.random() * 2 * Math.PI; // TODO : supprimer parametre phase et mettre dans cstrctor particle
         int randomAmplitude = Utility.getRandomInRange(MIN_AMPLITUDE, MAX_AMPLITUDE);
 
         double dirAngle = Math.atan2(randomDirection.y, randomDirection.x);
@@ -182,7 +173,7 @@ public class Physics {
         }
         Vector2D randomSpeedDir = Vector2D.getRandomRangeUnitary(dirAngle - ANGLE_RANGE / 2, dirAngle + ANGLE_RANGE / 2);
 
-        createParticle(randomType, startPosition.x, startPosition.y, randomFrequency, randomAmplitude, randomPhase,
+        createParticle(randomType, startPosition.x, startPosition.y, randomFrequency, randomAmplitude,
                 false, Vector2D.getScaled(randomSpeedDir, -randomSpeed));
     }
 }

@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class GameArea extends JPanel implements MouseMotionListener, MouseListener {
 
@@ -43,33 +44,6 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
         addMouseMotionListener(this);
         addMouseListener(this);
-
-//        this.aim = new Image() {
-//            @Override
-//            public int getWidth(ImageObserver observer) {
-//                return 25;
-//            }
-//
-//            @Override
-//            public int getHeight(ImageObserver observer) {
-//                return 50;
-//            }
-//
-//            @Override
-//            public ImageProducer getSource() {
-//                return null;
-//            }
-//
-//            @Override
-//            public Graphics getGraphics() {
-//                return null;
-//            }
-//
-//            @Override
-//            public Object getProperty(String name, ImageObserver observer) {
-//                return null;
-//            }
-//        };
     }
 
     public void paintComponent(Graphics g) {
@@ -122,13 +96,13 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     private Vector2D transpose(Vector2D coords, int width, int height, Anchor anchor) {
         Vector2D result = null;
         switch (anchor) {
-            case BOTTOM_MIDDLE -> result = Vector2D.moveBy(coords, -width / 2.0, -height); // TODO: check diff with no casting
-            case CENTER -> result = Vector2D.moveBy(coords, -width / 2.0, -height / 2.0);
+            case BOTTOM_MIDDLE -> result = Vector2D.add(coords, -width / 2.0, -height);
+            case CENTER -> result = Vector2D.add(coords, -width / 2.0, -height / 2.0);
         }
         return result;
     }
 
-    // Met a jour l'affichage de toutes les particules a l'ecran, en prenant en compte leurs nouvelles positions
+    // Met à jour l'affichage de toutes les particules à l'ecran, en prenant en compte leurs nouvelles positions
     public void updateScreen() {
         clearScreen();
         for (Particle p : Physics.allParticles) {
@@ -145,13 +119,11 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
     private void drawParticle(Particle p) {
         bufferG.setColor(p.color);
-        Point particleSize = new Point(p.img.getWidth(null), p.img.getHeight(null));
+        Point particleSize = new Point(p.img.getWidth(), p.img.getHeight());
 
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        int x = (int) (p.position.x - particleSize.x / 2.0);
-        int y = (int) (p.position.y - particleSize.y / 2.0);
-
-        bufferG.fillOval(x, y, 25, 25);
+        Vector2D.Int pos = transpose(p.position, particleSize.x, particleSize.y, Anchor.CENTER).toInt();
+        bufferG.drawImage(p.img, pos.x, pos.y, null);
 
         // Dessine le collider
 //        bufferG.setColor(Color.GREEN);
@@ -171,7 +143,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         direction.normalize();
         Vector2D startSpeed = Vector2D.getScaled(direction, 10);
         Physics.createParticle(SelectionBar.selectedType, (int)launcherOrigin.x, (int)launcherOrigin.y, 0.02,
-                50, Math.random() * 2 * Math.PI, true, startSpeed);
+                50, true, startSpeed);
 
         // Détection de clic sur une particule d'antimatière
         for (Particle p : Physics.antimatterParticles) {

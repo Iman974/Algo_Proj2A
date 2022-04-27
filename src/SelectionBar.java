@@ -13,8 +13,6 @@ public class SelectionBar extends JPanel implements ActionListener {
 
     public SelectionBar() {
         final int BUTTON_SIZE = 50;
-        //setBounds(GameArea.width - BUTTON_SIZE - 10, GameArea.height - BUTTON_SIZE - 10, BUTTON_SIZE,
-        //        BUTTON_SIZE);
         setBounds(0, 0, 230, 50);
         
         Icon iconNeutron = new ImageIcon("../resources/neutronImage.jpg");

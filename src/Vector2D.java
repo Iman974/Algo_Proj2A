@@ -51,39 +51,36 @@ public class Vector2D {
             // Le vecteur est le vecteur nul.
             set(0, 0);
         } else {
-            scaleBy(1 / length);
+            scale(1 / length);
         }
     }
 
-    public void scaleBy(double scalar) {
+    public void scale(double scalar) {
         x *= scalar;
         y *= scalar;
     }
 
-    public double getDistanceTo(Vector2D v) {
-        return Math.sqrt((this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y));
+    public double getSqrDistanceTo(double a, double b) {
+        return (x - a) * (x - a) + (y - b) * (y - b);
     }
 
-    public double getSqrDistanceTo(Vector2D v) {
-        return (this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y);
-    }
-
-    public double getSqrDistanceTo(double x, double y) {
-        return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
-    }
-
-    public void moveBy(double deltaX, double deltaY) {
+    public void add(double deltaX, double deltaY) {
         x += deltaX;
         y += deltaY;
     }
 
-    public void moveBy(Vector2D delta) {
+    public void add(Vector2D delta) {
         x += delta.x;
         y += delta.y;
     }
 
     public Vector2D.Int toInt() {
         return new Int((int) x, (int) y);
+    }
+
+    // Retourne une copie de ce vecteur
+    public Vector2D copy() {
+        return new Vector2D(x, y);
     }
 
     public static double sqrDistance(Vector2D a, Vector2D b) {
@@ -110,12 +107,8 @@ public class Vector2D {
         return new Vector2D(a.x + b.x, a.y + b.y);
     }
 
-    public static Vector2D moveBy(Vector2D v, double deltaX, double deltaY) {
+    public static Vector2D add(Vector2D v, double deltaX, double deltaY) {
         return new Vector2D(v.x + deltaX, v.y + deltaY);
-    }
-
-    public static Vector2D subtract(Vector2D a, Vector2D b) {
-        return new Vector2D(a.x - b.x, a.y - b.y);
     }
 
     public static Vector2D fromTo(Vector2D from, Vector2D to) {
@@ -128,9 +121,10 @@ public class Vector2D {
         return new Vector2D(Math.cos(randomAngle), Math.sin(randomAngle));
     }
 
-    // Retourne un vecteur de norme 1 et de direction aléatoire excluant les directions comprises
-    // entre startAngle et endAngle (en radians, entre 0 et pi) si exclude est true,
-    // sinon la direction est comprise entre les angles en paramètre.
+    /* Retourne un vecteur de norme 1 et de direction aléatoire excluant les directions comprises
+       entre startAngle et endAngle (en radians, entre 0 et pi) si exclude est true,
+       sinon la direction est comprise entre les angles en paramètre.
+    */
     public static Vector2D getRandomRangeUnitary(double startAngle, double endAngle, boolean exclude) {
         double randomAngle;
         if (exclude) {
@@ -147,5 +141,11 @@ public class Vector2D {
 
     public static Vector2D getRandomRangeUnitary(double startAngle, double endAngle) {
         return getRandomRangeUnitary(startAngle, endAngle, false);
+    }
+
+    public static Vector2D middle(Vector2D a, Vector2D b) {
+        Vector2D result = Vector2D.add(a,b);
+        result.scale(0.5);
+        return result;
     }
 }
