@@ -12,10 +12,13 @@ public class Physics {
     // Contient toutes les particules qui peuvent causer une collision avec toutes les autres (celles du joueur uniquement)
     private static LinkedList<Particle> collidableParticles;
 
+    private static LinkedList<Particle> particlesToSave;
+
     public Physics() {
         allParticles = new LinkedList<Particle>();
         collidableParticles = new LinkedList<Particle>();
         antimatterParticles = new LinkedList<Particle>();
+        particlesToSave = new LinkedList<Particle>();
 
         final int MIN_PARTICLES_PER_WAVE = 2;
         final int MAX_PARTICLES_PER_WAVE = 8;
@@ -84,18 +87,19 @@ public class Physics {
         removeDeadParticles(allParticles);
         removeDeadParticles(collidableParticles);
         removeDeadParticles(antimatterParticles);
+        saveParticles();
     }
 
     // Marque la particule comme devant être détruite à la prochaine mise à jour physique.
-    public void setDestroyFlag(Particle p) {
+    private void setDestroyFlag(Particle p) {
         p.isDead = true;
     }
 
     // Supprime toutes les particules marquées comme 'dead' dans la liste donnée
-    public void removeDeadParticles(List<Particle> particleList) {
+    private void removeDeadParticles(List<Particle> particleList) {
         for (Iterator<Particle> iterator = particleList.iterator(); iterator.hasNext();) {
-            Particle p = iterator.next();
-            if (p.isDead) {
+            Particle particle = iterator.next();
+            if (particle.isDead) {
                 iterator.remove();
             }
         }
@@ -105,20 +109,28 @@ public class Physics {
     public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
                                 boolean fromPlayer, Vector2D startSpeed) {
         double randomPhase = Math.random() * 2 * Math.PI;
-        Particle p = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
-
-        allParticles.add(p);
-        if (fromPlayer) {
-            collidableParticles.add(p);
-        }
+        Particle newParticle = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
+        particlesToSave.add(newParticle);
     }
 
-    public void checkCollisions() {
+    // Sauvegarde les particules nouvellement créées en les insérant dans les listes en fonction de leur nature.
+    private void saveParticles() {
+        for (int i = 0; i < particlesToSave.size(); i++) {
+            Particle newParticle = particlesToSave.get(i);
+            allParticles.add(newParticle);
+            if (newParticle.isFromPlayer) {
+                collidableParticles.add(newParticle);
+            }
+        }
+        particlesToSave.clear();
+    }
+
+    private void checkCollisions() {
         for (Particle p1 : collidableParticles) {
             for (Particle p2 : allParticles) {
                 // Pour chaque particule pouvant causer une collision, on vérifie la distance qui la sépare
                 // à chaque autre particule
-                if (p1 == p2) {
+                if (p1 == p2) { // TODO : trouver un moyen de ne pas recomparer les même particules
                     // On exclue la particule elle-même
                     continue;
                 }
@@ -128,7 +140,7 @@ public class Physics {
                     Vector2D.Int spawnPosition = Vector2D.middle(position1, position2).toInt();
                     int speedFactor = Utility.getRandomInRange(4, 13);
                     Vector2D randomSpeed = Vector2D.getScaled(Vector2D.getRandomUnitary(), speedFactor);
-//                    createParticle(Particle.Type.ANTIMATTER, spawnPosition.x, spawnPosition.y, 0.1, 20, false, randomSpeed);
+                    createParticle(Particle.Type.ANTIMATTER, spawnPosition.x, spawnPosition.y, 0.1, 20, false, randomSpeed);
                     setDestroyFlag(p1);
                     setDestroyFlag(p2);
                 }
@@ -139,7 +151,7 @@ public class Physics {
     /*
     Spawn une particule aléatoirement. Elle apparaît sortant d'une bordure de l'écran, sauf celle en bas.
      */
-    public void spawnParticle() {
+    private void spawnParticle() {
         Particle.Type[] types = Particle.Type.values();
         Particle.Type randomType = types[(int)(Math.random() * (types.length - 1))];
 
