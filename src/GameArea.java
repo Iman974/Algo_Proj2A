@@ -9,13 +9,13 @@ import java.io.File;
 
 public class GameArea extends JPanel implements MouseMotionListener, MouseListener {
 
-    BufferedImage buffer;
-    static Graphics bufferG;
+    private final BufferedImage buffer;
+    private static Graphics bufferG;
 
-    Vector2D launcherOrigin;
-    Vector2D mousePosition;
-    BufferedImage aim;
-    Vector2D aimPosition;
+    private Vector2D launcherOrigin;
+    private Vector2D mousePosition;
+    private BufferedImage aim;
+    private Vector2D aimPosition;
 
     static int width;
     static int height;
@@ -118,11 +118,10 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     private void drawParticle(Particle p) {
-        bufferG.setColor(p.color);
         Point particleSize = new Point(p.img.getWidth(), p.img.getHeight());
 
         // Ramene la position en haut à gauche de l'image. C'est l'origine de tout dessin.
-        Vector2D.Int pos = transpose(p.position, particleSize.x, particleSize.y, Anchor.CENTER).toInt();
+        Vector2D.Int pos = transpose(p.getPosition(), particleSize.x, particleSize.y, Anchor.CENTER).toInt();
         bufferG.drawImage(p.img, pos.x, pos.y, null);
 
         // Dessine le collider
@@ -147,7 +146,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
         // Détection de clic sur une particule d'antimatière
         for (Particle p : Physics.antimatterParticles) {
-            if (p.position.getSqrDistanceTo(e.getX(), e.getY()) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
+            if (p.getPosition().getSqrDistanceTo(e.getX(), e.getY()) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
                 score = score + 1;
             }
         }

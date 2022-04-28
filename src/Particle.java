@@ -1,10 +1,7 @@
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.Buffer;
-
 
 public class Particle {
 
@@ -17,23 +14,24 @@ public class Particle {
 
     public boolean isDead;
 
-    final static int FORCE_RADIUS = 165;
-    final int COLLIDER_RADIUS = 13;
+    public final static int FORCE_RADIUS = 165;
+    public final int COLLIDER_RADIUS = 13;
+
+    public final BufferedImage img;
+    public final boolean isFromPlayer;
+    public final Type type;
 
     private final int moveAmplitude;
     private final double speedFrequency;
     private final double phaseOffset;
     private final int charge;
 
-    final Vector2D totalForce;
-    final Vector2D speed;
-    final Vector2D position;
-    final BufferedImage img;
-    final boolean isFromPlayer;
-    final Color color;
-    final Type type;
+    private final Vector2D totalForce;
+    private final Vector2D speed;
+    private final Vector2D position;
 
     // TODO: Ne pas utiliser de Vector2D en paramètre car passage par référence (dans tout le code)
+
     public Particle(Type type, int x, int y, double frequency, int amplitude, double phase, boolean isPlayer,
                     Vector2D startSpeed) {
         this.position = new Vector2D(x, y);
@@ -50,26 +48,25 @@ public class Particle {
         switch (type) {
             case NEUTRON:
                 this.charge = 0;
-                this.color = Color.LIGHT_GRAY;
                 break;
             case PROTON:
                 this.charge = 1;
-                this.color = Color.RED;
                 break;
             case ELECTRON:
                 this.charge = -1;
-                this.color = Color.CYAN;
                 break;
             case ANTIMATTER:
                 this.charge = 0;
-                this.color = Color.YELLOW;
                 break;
             default:
                 this.charge = 0;
-                this.color = null;
         }
 
         this.img = getParticleImage();
+    }
+
+    public Vector2D getPosition() {
+        return position.copy();
     }
 
     private BufferedImage getParticleImage() {
