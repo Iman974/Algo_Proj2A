@@ -11,6 +11,7 @@ public class MainWindow extends JFrame implements ActionListener {
 
     GameArea gameArea;
     SelectionBar particleSelector;
+    scorePanel ScorePanel;
 
     public MainWindow(String name, int width, int height) {
         super(name);
@@ -32,6 +33,10 @@ public class MainWindow extends JFrame implements ActionListener {
         this.particleSelector = new SelectionBar();
         background.add(this.gameArea);
         this.gameArea.add(particleSelector);
+
+        this.ScorePanel = new scorePanel();
+        background.add(this.gameArea);
+        this.gameArea.add(ScorePanel);
     }
 
     public static int getFrame() {
@@ -39,7 +44,7 @@ public class MainWindow extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        MainWindow w = new MainWindow("Game", 900, 700);
+        MainWindow w = new MainWindow("Game", 1200, 900);
         physics = new Physics();
 
         // Initialisation du timer pour les animations

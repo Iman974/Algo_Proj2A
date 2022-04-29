@@ -8,13 +8,12 @@ public class SelectionBar extends JPanel implements ActionListener {
     private final JButton protonBtn;
     private final JButton electronBtn;
     private final JButton neutronBtn;
-    private JLabel score;
 
     public static Particle.Type selectedType = Particle.Type.PROTON;
 
     public SelectionBar() {
         final int BUTTON_SIZE = 50;
-        setBounds(0, 0, 230, 50);
+        setBounds(990, 800, 170, 50);
 
         Icon iconNeutron = new ImageIcon("../resources/neutronImage.jpg");
         neutronBtn = new JButton("N", iconNeutron);
@@ -37,12 +36,6 @@ public class SelectionBar extends JPanel implements ActionListener {
         electronBtn.setBounds(120, 0, BUTTON_SIZE,
                 BUTTON_SIZE);
         add(electronBtn);
-
-        score = new JLabel();
-        score.setSize(50, 50);
-        score.setLocation(180, 0);
-        score.setText("score : " + GameArea.score);
-        add(score);
 
         neutronBtn.addActionListener(this);
         electronBtn.addActionListener(this);

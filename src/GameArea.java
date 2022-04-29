@@ -19,7 +19,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
     static int width;
     static int height;
-    static int score;
+    static int nbPoint;
 
     // TODO: déplacer cette enum dans une classe plus pertinente
     private enum Anchor {
@@ -147,7 +147,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         // Détection de clic sur une particule d'antimatière
         for (Particle p : Physics.antimatterParticles) {
             if (p.getPosition().getSqrDistanceTo(e.getX(), e.getY()) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
-                score = score + 1;
+                nbPoint = nbPoint + 1;
             }
         }
     }
