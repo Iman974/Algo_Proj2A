@@ -2,12 +2,14 @@ import java.awt.Color;
 
 import javax.swing.*;
 
-public class scorePanel extends JPanel{
+public class ScorePanel extends JPanel{
     private final JLabel score;
 
-    public scorePanel() {
+    public ScorePanel() {
         setBackground(Color.YELLOW);
-        setBounds(1115, 20, 50, 50);
+        final int SCORE_SIZE = 50;
+        setBounds(GameArea.width - SCORE_SIZE - 30, 20, SCORE_SIZE, SCORE_SIZE);
+        setLayout(null);
 
         score = new JLabel();
         score.setSize(50, 50);
@@ -15,6 +17,4 @@ public class scorePanel extends JPanel{
         score.setText("score : " + GameArea.nbPoint);
         add(score);
     }
-
-
 }

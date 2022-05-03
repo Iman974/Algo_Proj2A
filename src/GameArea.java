@@ -47,7 +47,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void paintComponent(Graphics g) {
-         super.paintComponent(g); // TODO: Utile à conserver ?
+//         super.paintComponent(g); // TODO: Utile à conserver ?
 
         // Dessine le viseur
         final int LAUNCHER_DIM = 50;
@@ -70,26 +70,11 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 //        g.setColor(Color.green);
 //        final int radius = Particle.FORCE_RADIUS;
 //        for (Particle p : Physics.allParticles) {
-//            g.drawOval((int)(p.position.x - radius), (int)(p.position.y - radius), radius * 2, radius * 2);
+//            Vector2D pos = p.getPosition();
+//            g.drawOval((int)(pos.x - radius), (int)(pos.y - radius), radius * 2, radius * 2);
 //        }
 
         g.drawImage(buffer, 0, 0, null);
-    }
-
-    // Effectue la rotation d'une image et la retourne (angle en radians)
-    public BufferedImage rotate(BufferedImage img, double angle) {
-        final double sin = Math.abs(Math.sin(angle));
-        final double cos = Math.abs(Math.cos(angle));
-        final int w = (int) Math.floor(img.getWidth() * cos + img.getHeight() * sin);
-        final int h = (int) Math.floor(img.getHeight() * cos + img.getWidth() * sin);
-        final BufferedImage rotatedImage = new BufferedImage(w, h, img.getType());
-        final AffineTransform transform = new AffineTransform();
-        transform.translate(w / 2.0, h / 2.0);
-        transform.rotate(angle,0, 0);
-        transform.translate(-img.getWidth() / 2, -img.getHeight() / 2);
-        final AffineTransformOp rotateOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-
-        return rotateOp.filter(img, rotatedImage);
     }
 
     // Transpose des coordonnées du repère physique au repère du dessin en fonction du point d'ancrage
@@ -126,8 +111,8 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
         // Dessine le collider
 //        bufferG.setColor(Color.GREEN);
-//        bufferG.drawOval((int)(p.position.x - p.COLLIDER_RADIUS), (int)(p.position.y - p.COLLIDER_RADIUS),
-//                p.COLLIDER_RADIUS * 2, p.COLLIDER_RADIUS * 2);
+//        Vector2D.Int colliderPos = transpose(p.getPosition(), p.COLLIDER_RADIUS * 2, p.COLLIDER_RADIUS * 2, Anchor.CENTER).toInt();
+//        bufferG.drawOval(colliderPos.x, colliderPos.y, p.COLLIDER_RADIUS * 2, p.COLLIDER_RADIUS * 2);
     }
 
     public void mouseMoved(MouseEvent e) {
@@ -135,6 +120,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void mouseClicked(MouseEvent e) {
+        System.out.println("Mouse clicked");
         mousePosition.set(e.getX(), e.getY());
 
         // Spawn une particule dans la direction du launcher vers la souris

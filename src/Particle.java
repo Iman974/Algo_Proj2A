@@ -15,7 +15,7 @@ public class Particle {
     public boolean isDead;
 
     public final static int FORCE_RADIUS = 165;
-    public final int COLLIDER_RADIUS = 13;
+    public final int COLLIDER_RADIUS = 18;
 
     public final BufferedImage img;
     public final boolean isFromPlayer;
@@ -30,9 +30,9 @@ public class Particle {
     private final Vector2D speed;
     private final Vector2D position;
 
-    // TODO: Ne pas utiliser de Vector2D en paramètre car passage par référence (dans tout le code)
+    private static BufferedImage[] particleImages;
 
-    public Particle(Type type, int x, int y, double frequency, int amplitude, double phase, boolean isPlayer,
+    public Particle(Type type, int x, int y, double frequency, int amplitude, double startPhase, boolean isPlayer,
                     Vector2D startSpeed) {
         this.position = new Vector2D(x, y);
         this.isFromPlayer = isPlayer;
@@ -40,9 +40,8 @@ public class Particle {
         this.speedFrequency = frequency;
         this.moveAmplitude = amplitude;
         this.speed = startSpeed.copy();
-        this.phaseOffset = phase;
+        this.phaseOffset = startPhase;
 
-//        this.img = getParticleImage();
         this.type = type;
         // On définit les propriétés de la particule selon son type
         switch (type) {
@@ -62,23 +61,36 @@ public class Particle {
                 this.charge = 0;
         }
 
-        this.img = getParticleImage();
+        // Initialise le tableaux d'images, récupère l'image pour cette particule si elle n'est pas encore récupérée
+        Type[] particleTypes = Type.values();
+        if (particleImages == null) {
+            particleImages = new BufferedImage[particleTypes.length];
+        }
+        int imageIndex = type.ordinal();
+        if (particleImages[imageIndex] == null) {
+            particleImages[imageIndex] = getParticleImage();
+        }
+        this.img = particleImages[imageIndex];
     }
 
     public Vector2D getPosition() {
         return position.copy();
     }
 
+    /* Retourne l'image associée au type de la particule en prenant en compte l'emplacement actuel d'exécution
+       du programme
+     */
     private BufferedImage getParticleImage() {
         String currentDirectory = System.getProperty("user.dir");
 
         String root;
+        // Si le chemin actuel contient "src", alors on se trouve dans le dossier des fichiers de sources,
+        // sinon on se trouve à la racine qui contient de dossier src.
         if (currentDirectory.contains("src")) {
             root = "..\\resources\\";
         } else {
             root = "\\resources\\";
         }
-        System.out.println(currentDirectory + root + type + ".png");
         File imageFile = new File(currentDirectory, root + type + ".png");
         try {
             return ImageIO.read(imageFile);
@@ -97,9 +109,11 @@ public class Particle {
         double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * MainWindow.getFrame() + phaseOffset);
 
         speed.add(totalForce);
+
         // Le mouvement est la somme d'un mouvement sinusoïdal dans la direction transverse à un second
         // mouvement qui est longitudinal (vers l'avant)
-        position.add((waveSpeedEval * -direction.y) + speed.x, (waveSpeedEval * direction.x) + speed.y);
+        Vector2D deltaMove = new Vector2D((waveSpeedEval * -direction.y) + speed.x, (waveSpeedEval * direction.x) + speed.y);
+        position.add(deltaMove);
     }
 
     public void resetForce() {

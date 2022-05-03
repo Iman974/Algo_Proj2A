@@ -6,58 +6,60 @@ import java.awt.event.ActionListener;
 public class MainWindow extends JFrame implements ActionListener {
 
     private static Physics physics;
-
-    private static int frameCounter;
+    private static int currentFrame;
 
     GameArea gameArea;
     SelectionBar particleSelector;
-    scorePanel ScorePanel;
+    ScorePanel scorePanel;
+
+    private long previousFrameTime;
+    public static double deltaTime;
+    public static int FPS = 60;
 
     public MainWindow(String name, int width, int height) {
         super(name);
-        setSize(width, height);
-        setLocation(300, 50);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+
+        // Dimension de la fenêtre
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Insets insets = getInsets();
+        setSize(width, screenSize.height - insets.top - insets.bottom);
+        setLocation(screenSize.width / 2 - width / 2, 0);
 
         // Initialisation graphique
         JPanel background = new JPanel();
         background.setLayout(null);
-        Insets insets = getInsets();
         background.setBounds(0, 0, getWidth() - insets.left - insets.right,
                 getHeight() - insets.top - insets.bottom);
         add(background);
 
         this.gameArea = new GameArea(background.getWidth(), background.getHeight());
 
+        background.add(this.gameArea);
+        this.scorePanel = new ScorePanel();
         this.particleSelector = new SelectionBar();
-        background.add(this.gameArea);
         this.gameArea.add(particleSelector);
-
-        this.ScorePanel = new scorePanel();
-        background.add(this.gameArea);
-        this.gameArea.add(ScorePanel);
+        this.gameArea.add(scorePanel);
     }
 
     public static int getFrame() {
-        return frameCounter;
+        return currentFrame;
     }
 
     public static void main(String[] args) {
         MainWindow w = new MainWindow("Game", 1200, 900);
         physics = new Physics();
-
-        // Initialisation du timer pour les animations
+        // Initialisation du timer pour les mises à jour graphiques
         // Toujours mettre à 17 ms d'intervalle (hors test), ce qui équivaut ~60 fps
-        Timer t = new Timer(17, w);
-        t.start();
-//        System.out.println(System.getProperty("user.dir"));
+        Timer frameTimer = new Timer((int)(1.0 / FPS * 1000), w);
+        frameTimer.start();
     }
 
-    // Appelée à chaque frame
     public void actionPerformed(ActionEvent e) {
+        deltaTime = (System.currentTimeMillis() - previousFrameTime) / 1000.0;
+        previousFrameTime = System.currentTimeMillis();
         gameArea.updateScreen();
-        physics.updateScene();
-        frameCounter++;
+        currentFrame++;
     }
 }
