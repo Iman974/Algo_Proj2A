@@ -60,8 +60,8 @@ public class Vector2D {
         y *= scalar;
     }
 
-    public double getSqrDistanceTo(double a, double b) {
-        return (x - a) * (x - a) + (y - b) * (y - b);
+    public double getSqrDistanceTo(Vector2D v) {
+        return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y);
     }
 
     public void add(double deltaX, double deltaY) {

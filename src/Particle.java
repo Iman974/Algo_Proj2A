@@ -106,7 +106,7 @@ public class Particle {
 
         final double PULSE = 2 * Math.PI * speedFrequency;
         // On evalue la valeur de la vitesse pour le mouvement sinusoïdal pour cette frame
-        double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * MainWindow.getFrame() + phaseOffset);
+        double waveSpeedEval = PULSE * moveAmplitude * Math.sin(PULSE * Main.getFrame() + phaseOffset);
 
         speed.add(totalForce);
 

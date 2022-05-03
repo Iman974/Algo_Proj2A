@@ -29,7 +29,7 @@ public class Physics {
             }
         };
         final int START_DELAY = 1500; // Délai nécessaire pour stabilisation du framerate en début de jeu
-        physicsTimer.scheduleAtFixedRate(updateTask, START_DELAY, (long)(1.0 / UPDATES_PER_SECOND * 1000));
+        physicsTimer.schedule(updateTask, START_DELAY, (long)(1.0 / UPDATES_PER_SECOND * 1000));
 
         TimerTask waveTask = new TimerTask() {
             public void run() {
@@ -95,8 +95,8 @@ public class Physics {
         saveParticles();
     }
 
-    // Marque la particule comme devant être détruite à la prochaine mise à jour physique.
-    private void setDestroyFlag(Particle p) {
+    // Marque la particule comme devant être détruite pour la prochaine mise à jour physique.
+    public static void setDestroyFlag(Particle p) {
         p.isDead = true;
     }
 
@@ -113,7 +113,6 @@ public class Physics {
     // Instancie une particule dans le jeu
     public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
                                 boolean fromPlayer, Vector2D startSpeed) {
-//        System.out.println("frame is updating: " + GameArea.isUpdating);
         double randomPhase = Math.random() * 2 * Math.PI;
         Particle newParticle = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
         // TODO: /!\ erreur à corriger (multi-thread) en lien avec updateScreen de GameArea
@@ -125,7 +124,9 @@ public class Physics {
         for (int i = 0; i < particlesToSave.size(); i++) {
             Particle newParticle = particlesToSave.get(i);
             allParticles.add(newParticle);
-            if (newParticle.isFromPlayer) {
+            if (newParticle.type == Particle.Type.ANTIMATTER) {
+                antimatterParticles.add(newParticle);
+            } else if (newParticle.isFromPlayer) {
                 collidableParticles.add(newParticle);
             }
         }
@@ -148,7 +149,7 @@ public class Physics {
                     setDestroyFlag(p2);
                     if (p1.type != Particle.Type.ANTIMATTER && p2.type != Particle.Type.ANTIMATTER) {
                         final int MIN_ANTIMATTER_COUNT = 1;
-                        final int MAX_ANTIMATTER_COUNT = 3;
+                        final int MAX_ANTIMATTER_COUNT = 1;
                         Vector2D spawnPosition = Vector2D.middle(position1, position2);
                         for (int i = 0; i < Utility.getRandomInRange(MIN_ANTIMATTER_COUNT, MAX_ANTIMATTER_COUNT); i++) {
                             spawnAntimatter(spawnPosition);
@@ -160,16 +161,11 @@ public class Physics {
     }
 
     public void spawnAntimatter(Vector2D spawnPosition) {
-        final int MIN_PARTICLE_SPEED = 3;
-        final int MAX_PARTICLE_SPEED = 5;
-        int speedFactor = Utility.getRandomInRange(MIN_PARTICLE_SPEED, MAX_PARTICLE_SPEED);
+        final double MIN_PARTICLE_SPEED = 1.5;
+        final double MAX_PARTICLE_SPEED = 3;
+        double speedFactor = Utility.getRandomInRange(MIN_PARTICLE_SPEED, MAX_PARTICLE_SPEED);
         Vector2D randomSpeed = Vector2D.getScaled(Vector2D.getRandomUnitary(), speedFactor);
-        createParticle(Particle.Type.ANTIMATTER, (int)spawnPosition.x, (int)spawnPosition.y, 0.02, 20, false, randomSpeed);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        createParticle(Particle.Type.ANTIMATTER, (int)spawnPosition.x, (int)spawnPosition.y, 0.015, 40, false, randomSpeed);
     }
 
     /*
@@ -185,8 +181,8 @@ public class Physics {
         final double MAX_FREQUENCY = 0.03;
         final int MIN_AMPLITUDE = 25;
         final int MAX_AMPLITUDE = 100;
-        final int MIN_SPEED = 2;
-        final int MAX_SPEED = 7;
+        final double MIN_SPEED = 2;
+        final double MAX_SPEED = 7;
         final double START_SPEED_ANGLE_RANGE = Math.toRadians(80); // Angle d'ouverture du cône de vitesse initiale
 
         Vector2D randomDirection = Vector2D.getRandomRangeUnitary(Math.toRadians(40), Math.toRadians(140), true);
@@ -196,7 +192,7 @@ public class Physics {
                 Math.sqrt(width * width + height * height) / 2 + OUTER_MARGIN + Math.random() * DIST_OFFSET_RANGE);
         Vector2D.Int startPosition = Vector2D.add(GameArea.getCenter(), randomScaledDirection).toInt();
 
-        int randomSpeed = Utility.getRandomInRange(MIN_SPEED, MAX_SPEED);
+        double speedFactor = Utility.getRandomInRange(MIN_SPEED, MAX_SPEED);
         double randomFrequency = Utility.getRandomInRange(MIN_FREQUENCY, MAX_FREQUENCY);
         int randomAmplitude = Utility.getRandomInRange(MIN_AMPLITUDE, MAX_AMPLITUDE);
 
@@ -207,6 +203,6 @@ public class Physics {
         Vector2D randomSpeedDir = Vector2D.getRandomRangeUnitary(dirAngle - START_SPEED_ANGLE_RANGE / 2, dirAngle + START_SPEED_ANGLE_RANGE / 2);
 
         createParticle(randomType, startPosition.x, startPosition.y, randomFrequency, randomAmplitude,
-                false, Vector2D.getScaled(randomSpeedDir, -randomSpeed));
+                false, Vector2D.getScaled(randomSpeedDir, -speedFactor));
     }
 }

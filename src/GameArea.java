@@ -1,25 +1,21 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 public class GameArea extends JPanel implements MouseMotionListener, MouseListener {
 
     private final BufferedImage buffer;
     private static Graphics bufferG;
 
-    private Vector2D launcherOrigin;
+    private Vector2D shootOrigin;
     private Vector2D mousePosition;
     private BufferedImage aim;
-    private Vector2D aimPosition;
 
-    static int width;
-    static int height;
-    static int nbPoint;
+    public static int width;
+    public static int height;
+
+    private static Vector2D center;
 
     // TODO: déplacer cette enum dans une classe plus pertinente
     private enum Anchor {
@@ -34,8 +30,7 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         GameArea.width = width;
         GameArea.height = height;
 
-        this.launcherOrigin = new Vector2D(width / 2.0, height - 70);
-        this.aimPosition = new Vector2D();
+        this.shootOrigin = new Vector2D(width / 2.0, height - 70);
         this.mousePosition = new Vector2D();
 
         this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -51,20 +46,21 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
 
         // Dessine le viseur
         final int LAUNCHER_DIM = 50;
-        Vector2D.Int launcherPos = transpose(launcherOrigin, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
+        Vector2D.Int launcherPos = transpose(shootOrigin, LAUNCHER_DIM, LAUNCHER_DIM, Anchor.CENTER).toInt();
         bufferG.setColor(Color.DARK_GRAY);
         bufferG.drawRect(launcherPos.x, launcherPos.y, LAUNCHER_DIM, LAUNCHER_DIM);
 
-        Vector2D direction = Vector2D.fromTo(launcherOrigin, mousePosition);
-        direction.normalize();
-        aimPosition = Vector2D.add(launcherOrigin, Vector2D.getScaled(direction, 65));
-//        Vector2D.Int aimImgSize = new Vector2D.Int(aim.getWidth(null), aim.getHeight(null));
-//        Vector2D.Int aimPos = transpose(aimPosition, w, h, Anchor.BOTTOM_MIDDLE).toInt();
+        Vector2D launcherToMouse = Vector2D.fromTo(shootOrigin, mousePosition);
+        launcherToMouse.normalize();
+        final int AIMER_LENGTH = 40;
+        Vector2D aimDirection1 = Vector2D.getScaled(launcherToMouse, LAUNCHER_DIM);
+        Vector2D aimDirection2 = Vector2D.getScaled(launcherToMouse, LAUNCHER_DIM + AIMER_LENGTH);
 
         // Version temporaire de l'affichage du viseur sans image
-        bufferG.setColor(Color.green);
-        Vector2D.Int lineEnd = Vector2D.add(launcherOrigin, aimPosition).toInt();
-        bufferG.drawLine((int)launcherOrigin.x, (int)launcherOrigin.y, (int)aimPosition.x, (int)aimPosition.y);
+        bufferG.setColor(Color.orange);
+        Vector2D.Int lineStart = Vector2D.add(shootOrigin, aimDirection1).toInt();
+        Vector2D.Int lineEnd = Vector2D.add(shootOrigin, aimDirection2).toInt();
+        bufferG.drawLine(lineStart.x, lineStart.y, lineEnd.x, lineEnd.y);
 
         // Dessine le rayon d'interaction pour chaque particule
 //        g.setColor(Color.green);
@@ -119,28 +115,30 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
         mousePosition.set(e.getX(), e.getY());
     }
 
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("Mouse clicked");
+    public void mousePressed(MouseEvent e) {
         mousePosition.set(e.getX(), e.getY());
-
-        // Spawn une particule dans la direction du launcher vers la souris
-        Vector2D direction = Vector2D.fromTo(launcherOrigin, mousePosition);
-        direction.normalize();
-        Vector2D startSpeed = Vector2D.getScaled(direction, 10);
-        Physics.createParticle(SelectionBar.selectedType, (int)launcherOrigin.x, (int)launcherOrigin.y, 0.02,
-                50, true, startSpeed);
 
         // Détection de clic sur une particule d'antimatière
         for (Particle p : Physics.antimatterParticles) {
-            if (p.getPosition().getSqrDistanceTo(e.getX(), e.getY()) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
-                nbPoint = nbPoint + 1;
+            if (p.getPosition().getSqrDistanceTo(mousePosition) <= p.COLLIDER_RADIUS * p.COLLIDER_RADIUS) {
+                Main.addScore(1);
+                Physics.setDestroyFlag(p);
+                // Si une particule d'antimatière est collectée, on ne prend pas en compte le clic pour lancer une nouvelle particule
+                return;
             }
         }
+
+        // Spawn une particule dans la direction du launcher vers la souris
+        Vector2D direction = Vector2D.fromTo(shootOrigin, mousePosition);
+        direction.normalize();
+        Vector2D startSpeed = Vector2D.getScaled(direction, 10);
+        Physics.createParticle(SelectionBar.selectedType, (int) shootOrigin.x, (int) shootOrigin.y, 0.02,
+                50, true, startSpeed);
     }
 
-    public void mouseDragged(MouseEvent e) { }
+    public void mouseClicked(MouseEvent e) { }
 
-    public void mousePressed(MouseEvent e) { }
+    public void mouseDragged(MouseEvent e) { }
 
     public void mouseReleased(MouseEvent e) { }
 
@@ -149,6 +147,9 @@ public class GameArea extends JPanel implements MouseMotionListener, MouseListen
     public void mouseExited(MouseEvent e) { }
 
     public static Vector2D getCenter() {
-        return new Vector2D(width / 2.0, height / 2.0);
+        if (center == null) {
+            center = new Vector2D(width / 2.0, height / 2.0);
+        }
+        return center;
     }
 }

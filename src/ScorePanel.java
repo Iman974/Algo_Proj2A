@@ -1,9 +1,10 @@
-import java.awt.Color;
+import java.awt.*;
 
 import javax.swing.*;
 
-public class ScorePanel extends JPanel{
-    private final JLabel score;
+public class ScorePanel extends JPanel {
+
+    public JLabel score;
 
     public ScorePanel() {
         setBackground(Color.YELLOW);
@@ -13,8 +14,10 @@ public class ScorePanel extends JPanel{
 
         score = new JLabel();
         score.setSize(50, 50);
+        score.setHorizontalAlignment(SwingConstants.CENTER);
+        score.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 24));
         score.setLocation(0, 0);
-        score.setText("score : " + GameArea.nbPoint);
+        score.setText(String.valueOf(Main.getScore()));
         add(score);
     }
 }
