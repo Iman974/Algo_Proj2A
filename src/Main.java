@@ -10,39 +10,48 @@ public class Main extends JFrame implements ActionListener {
 
     private static GameArea gameArea;
     private static SelectionBar particleSelector;
-    private static ScorePanel scorePanel;
+    private static JLabel scoreText;
 
-//    private long previousFrameTime;
-//    public static double deltaTime;
     public static int FPS = 60;
 
     private static int scoreCount;
 
-    public Main(String name, int width, int height) {
+    public Main(String name, int width) {
         super(name);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
-        // Dimension de la fenêtre
+        // Dimensionnement de la fenêtre
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Insets insets = getInsets();
         setSize(width, screenSize.height - insets.top - insets.bottom);
         setLocation(screenSize.width / 2 - width / 2, 0);
 
-        // Initialisation graphique
+        // Initialisation composants graphiques
         JPanel background = new JPanel();
         background.setLayout(null);
         background.setBounds(0, 0, getWidth() - insets.left - insets.right,
                 getHeight() - insets.top - insets.bottom);
         add(background);
 
-        this.gameArea = new GameArea(background.getWidth(), background.getHeight());
+        gameArea = new GameArea(background.getWidth(), background.getHeight());
 
-        background.add(this.gameArea);
-        this.scorePanel = new ScorePanel();
-        this.particleSelector = new SelectionBar();
-        this.gameArea.add(particleSelector);
-        this.gameArea.add(scorePanel);
+        JPanel scorePanel = new JPanel();
+        scorePanel.setBackground(new Color(255, 225, 0));
+        final int SCORE_SIZE = 50;
+        scorePanel.setBounds(GameArea.width - SCORE_SIZE - 30, 20, SCORE_SIZE, SCORE_SIZE);
+        scoreText = new JLabel();
+        scoreText.setSize(50, 50);
+        scoreText.setHorizontalAlignment(SwingConstants.CENTER);
+        scoreText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 24));
+        scoreText.setLocation(0, 0);
+        scoreText.setText("0");
+
+        background.add(gameArea);
+        particleSelector = new SelectionBar();
+        gameArea.add(particleSelector);
+        gameArea.add(scorePanel);
+        scorePanel.add(scoreText);
     }
 
     public static int getFrame() {
@@ -50,8 +59,9 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        Main game = new Main("•~Neutrino~•", 1200, 900);
+        Main game = new Main("•~Neutrino~•", 1200);
         physics = new Physics();
+
         // Initialisation du timer pour les mises à jour graphiques
         Timer frameTimer = new Timer((int)(1.0 / FPS * 1000), game);
         frameTimer.start();
@@ -59,7 +69,7 @@ public class Main extends JFrame implements ActionListener {
 
     public static void addScore(int points) {
         scoreCount += points;
-        scorePanel.score.setText(String.valueOf(scoreCount));
+        scoreText.setText(String.valueOf(scoreCount));
     }
 
     public static int getScore() {
@@ -67,8 +77,6 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-//        deltaTime = (System.currentTimeMillis() - previousFrameTime) / 1000.0;
-//        previousFrameTime = System.currentTimeMillis();
         gameArea.updateScreen();
         currentFrame++;
     }

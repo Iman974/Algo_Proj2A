@@ -6,18 +6,6 @@ public class Vector2D {
     // Cette constante désigne le seuil à partir duquel une valeur est considéree comme nulle
     private static final double EPSILON = 1e-10;
 
-    // TODO: non-static ?
-    public static class Int {
-
-        int x;
-        int y;
-
-        public Int(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;
@@ -64,18 +52,13 @@ public class Vector2D {
         return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y);
     }
 
-    public void add(double deltaX, double deltaY) {
-        x += deltaX;
-        y += deltaY;
-    }
-
     public void add(Vector2D delta) {
         x += delta.x;
         y += delta.y;
     }
 
-    public Vector2D.Int toInt() {
-        return new Int((int) x, (int) y);
+    public Vector2DInt toInt() {
+        return new Vector2DInt((int) x, (int) y);
     }
 
     // Retourne une copie de ce vecteur

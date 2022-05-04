@@ -13,6 +13,7 @@ public class Physics {
     private final int UPDATES_PER_SECOND = 60;
 
     public static int updateCount;
+    public static boolean isCurrentlyUpdating;
 
     public Physics() {
         allParticles = new LinkedList<Particle>();
@@ -23,13 +24,12 @@ public class Physics {
         Timer physicsTimer = new Timer();
 
         TimerTask updateTask = new TimerTask() {
-
             public void run() {
                 updateScene();
             }
         };
         final int START_DELAY = 1500; // Délai nécessaire pour stabilisation du framerate en début de jeu
-        physicsTimer.schedule(updateTask, START_DELAY, (long)(1.0 / UPDATES_PER_SECOND * 1000));
+        physicsTimer.scheduleAtFixedRate(updateTask, START_DELAY, (long)(1.0 / UPDATES_PER_SECOND * 1000));
 
         TimerTask waveTask = new TimerTask() {
             public void run() {
@@ -95,6 +95,14 @@ public class Physics {
         saveParticles();
     }
 
+    // Instancie une particule dans le jeu
+    public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
+                                      boolean fromPlayer, Vector2D startSpeed) {
+        double randomPhase = Math.random() * 2 * Math.PI;
+        Particle newParticle = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
+        particlesToSave.add(newParticle);
+    }
+
     // Marque la particule comme devant être détruite pour la prochaine mise à jour physique.
     public static void setDestroyFlag(Particle p) {
         p.isDead = true;
@@ -110,20 +118,13 @@ public class Physics {
         }
     }
 
-    // Instancie une particule dans le jeu
-    public static void createParticle(Particle.Type type, int x, int y, double frequency, int amplitude,
-                                boolean fromPlayer, Vector2D startSpeed) {
-        double randomPhase = Math.random() * 2 * Math.PI;
-        Particle newParticle = new Particle(type, x, y, frequency, amplitude, randomPhase, fromPlayer, startSpeed);
-        // TODO: /!\ erreur à corriger (multi-thread) en lien avec updateScreen de GameArea
-        particlesToSave.add(newParticle);
-    }
-
     // Sauvegarde les particules nouvellement créées en les insérant dans les listes en fonction de leur nature.
     private void saveParticles() {
         for (int i = 0; i < particlesToSave.size(); i++) {
             Particle newParticle = particlesToSave.get(i);
-            allParticles.add(newParticle);
+            synchronized (allParticles) {
+                allParticles.add(newParticle);
+            }
             if (newParticle.type == Particle.Type.ANTIMATTER) {
                 antimatterParticles.add(newParticle);
             } else if (newParticle.isFromPlayer) {
@@ -138,7 +139,7 @@ public class Physics {
             for (Particle p2 : allParticles) {
                 // Pour chaque particule pouvant causer une collision, on vérifie la distance qui la sépare
                 // à chaque autre particule
-                if (p1 == p2) { // TODO : trouver un moyen de ne pas recomparer les même particules
+                if (p1 == p2) {
                     // On exclue la particule elle-même
                     continue;
                 }
@@ -190,7 +191,7 @@ public class Physics {
         int height = GameArea.height;
         Vector2D randomScaledDirection = Vector2D.getScaled(randomDirection,
                 Math.sqrt(width * width + height * height) / 2 + OUTER_MARGIN + Math.random() * DIST_OFFSET_RANGE);
-        Vector2D.Int startPosition = Vector2D.add(GameArea.getCenter(), randomScaledDirection).toInt();
+        Vector2DInt startPosition = Vector2D.add(GameArea.getCenter(), randomScaledDirection).toInt();
 
         double speedFactor = Utility.getRandomInRange(MIN_SPEED, MAX_SPEED);
         double randomFrequency = Utility.getRandomInRange(MIN_FREQUENCY, MAX_FREQUENCY);
